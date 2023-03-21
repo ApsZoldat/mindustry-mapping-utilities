@@ -1,0 +1,19 @@
+displayName: "Mapping Utilities"
+
+name: "mindustry-mapping-utilities"
+
+subtitle: "Mod improving map editor QOL"
+
+author: "ApsZoldat"
+
+main: "core.MappingUtilitiesMod"
+
+description: "WIP"
+
+version: 0
+
+minGameVersion: 142
+
+java: true
+
+hidden: true
