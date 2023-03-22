@@ -1,6 +1,7 @@
 package core.override.ui;
 
 
+import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
 import arc.math.*;
@@ -9,6 +10,7 @@ import arc.scene.ui.TextField.*;
 import arc.scene.ui.layout.*;
 import arc.util.*;
 import mindustry.editor.MapResizeDialog;
+import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 
 import static mindustry.Vars.*;
@@ -58,12 +60,13 @@ public class OMapResizeDialog extends MapResizeDialog {
 
             cont.row();
             cont.add(table);
-            cont.row();
-            cont.add("@editor.maxsize").color(Pal.accent);
-            cont.row();
+
 
             TextureRegion map = Draw.wrap(renderer.minimap.getTexture());
-            cont.image(map);
+            cont.image(map).maxSize(400f).minSize(400f);
+
+            cont.row();
+            cont.add("@editor.maxsize").color(Pal.accent).padTop(-40).align(Align.center);
         
             buttons.clear();
             buttons.button("@cancel", this::hide);

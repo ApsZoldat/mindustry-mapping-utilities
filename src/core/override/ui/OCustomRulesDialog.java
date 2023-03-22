@@ -9,6 +9,8 @@ import arc.scene.ui.ImageButton.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import core.utils.Stringc;
+import core.utils.Stringp;
 import mindustry.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
@@ -33,6 +35,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
     private Table main;
     private Prov<Rules> resetter;
     private LoadoutDialog loadoutDialog;
+    private Boolean customMode = false;
 
     public OCustomRulesDialog() {
         super();
@@ -143,10 +146,9 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         check("@rules.waitForWaveToEnd", b -> rules.waitEnemies = b, () -> rules.waitEnemies);
         check("@rules.showspawns", b -> rules.showSpawns = b, () -> rules.showSpawns);
         number("@rules.wavespacing", false, f -> rules.waveSpacing = f * 60f, () -> rules.waveSpacing / 60f, () -> rules.waveTimer, 1, Float.MAX_VALUE);
-        //this is experimental, because it's not clear that 0 makes it default.
-        if(experimental){
-            number("@rules.initialwavespacing", false, f -> rules.initialWaveSpacing = f * 60f, () -> rules.initialWaveSpacing / 60f, () -> true, 0, Float.MAX_VALUE);
-        }
+
+        number("@rules.initialwavespacing", false, f -> rules.initialWaveSpacing = f * 60f, () -> rules.initialWaveSpacing / 60f, () -> true, 0, Float.MAX_VALUE);
+        
         number("@rules.dropzoneradius", false, f -> rules.dropZoneRadius = f * tilesize, () -> rules.dropZoneRadius / tilesize, () -> true);
 
         title("@rules.title.resourcesbuilding");
@@ -324,6 +326,18 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         check("@rules.misc.unitpayupdate", b -> rules.unitPayloadUpdate = b, () -> rules.unitPayloadUpdate);
 
         number("@rules.misc.drag", f -> rules.dragMultiplier = f, () -> rules.dragMultiplier);
+        main.row();
+
+        customMode = (rules.modeName != null);
+        check("@rules.misc.custommode", b -> {
+            if (b) {
+                customMode = true;
+            } else {
+                rules.modeName = null;
+                customMode = false;
+            }
+        }, () -> rules.modeName != null);
+        text("@rules.misc.modename", s -> rules.modeName = s, () -> (rules.modeName == null ? "Gamemode" : rules.modeName), () -> customMode);
     }
 
     void team(String text, Cons<Team> cons, Prov<Team> prov) {
@@ -336,6 +350,18 @@ public class OCustomRulesDialog extends CustomRulesDialog {
                     cons.get(team);
                 }).pad(1f).checked(b -> prov.get() == team).size(60f).tooltip(team.localized()).with(i -> i.getStyle().imageUpColor = team.color);
             }
+        }).padTop(0).row();
+    }
+
+    void text(String text, Stringc cons, Stringp prov, Boolp condition) {
+        main.table(t -> {
+            t.left();
+            t.add(text).left().padRight(5)
+                .update(a -> a.setColor(condition.get() ? Color.white : Color.gray));
+            t.field((prov.get()) + "", s -> cons.get(s))
+                .update(a -> a.setDisabled(!condition.get()))
+                .padRight(100f)
+                .valid(s -> s.length() <= 256).left();
         }).padTop(0).row();
     }
 
