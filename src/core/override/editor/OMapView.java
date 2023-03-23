@@ -381,8 +381,8 @@ public class OMapView extends MapView {
     @Override
     public boolean pan(float x, float y, float deltaX, float deltaY){
         if(!active()) return false;
-        offsetx += deltaX / zoom;
-        offsety += deltaY / zoom;
+        offsetx += deltaX / zoom / 2;  // old editor pan works too
+        offsety += deltaY / zoom / 2;
         return false;
     }
 
@@ -390,7 +390,7 @@ public class OMapView extends MapView {
     public boolean zoom(float initialDistance, float distance){
         if(!active()) return false;
         float nzoom = distance - initialDistance;
-        zoom += nzoom / 10000f / Scl.scl(1f) * zoom;
+        zoom += nzoom / 10000f / Scl.scl(1f) * zoom / 2;
         clampZoom();
         return false;
     }
