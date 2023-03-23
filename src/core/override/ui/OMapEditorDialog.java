@@ -15,6 +15,8 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import core.override.editor.OMapEditor;
+import core.override.editor.OMapView;
 import mindustry.*;
 import mindustry.content.*;
 import mindustry.core.GameState.*;
@@ -34,10 +36,13 @@ import mindustry.editor.*;
 
 import static mindustry.Vars.*;
 
-public class OMapEditorDialog extends MapEditorDialog {
-    private MapEditorDialog oldEditor;
+import java.util.function.Function;
 
-    private MapView view;
+public class OMapEditorDialog extends MapEditorDialog {
+    private MapEditorDialog oldDialog;
+    public OMapEditor mapEditor;
+
+    private OMapView view;
     private OMapInfoDialog infoDialog;
     private MapLoadDialog loadDialog;
     private OMapResizeDialog resizeDialog;
@@ -54,14 +59,16 @@ public class OMapEditorDialog extends MapEditorDialog {
 
     private Map map;
 
-    public OMapEditorDialog(MapEditorDialog oldEditor){
+    public OMapEditorDialog(MapEditorDialog oldDialog, OMapEditor newEditor){
         super();
 
-        this.oldEditor = oldEditor; // used later to hide it
+        this.mapEditor = newEditor;
+        this.oldDialog = oldDialog; // used later to hide it
 
         background(Styles.black);
 
-        view = new MapView();
+        view = new OMapView();
+        view.editor = mapEditor;
         infoDialog = new OMapInfoDialog();
         generateDialog = new MapGenerateDialog(true);
         sectorGenDialog = new SectorGenerateDialog();
@@ -199,6 +206,7 @@ public class OMapEditorDialog extends MapEditorDialog {
             if(!(editor.width() == width && editor.height() == height && shiftX == 0 && shiftY == 0)){
                 ui.loadAnd(() -> {
                     editor.resize(width, height, shiftX, shiftY);
+                    mapEditor.clearCliffMatrix((int)width, (int)height);
                 });
             }
         });
@@ -228,7 +236,7 @@ public class OMapEditorDialog extends MapEditorDialog {
         });
 
         shown(() -> {
-            oldEditor.hide(); // old editor will show every time this one triggers
+            oldDialog.hide(); // old editor will show every time this one triggers
 
             if (shownWithMap) { // superclass casts map clear
                 editor.beginEdit(map);
@@ -241,6 +249,8 @@ public class OMapEditorDialog extends MapEditorDialog {
     private void editInGame(){
         menu.hide();
         ui.loadAnd(() -> {
+            save();
+
             lastSavedRules = state.rules;
             hide();
             //only reset the player; logic.reset() will clear entities, which we do not want
@@ -470,6 +480,7 @@ public class OMapEditorDialog extends MapEditorDialog {
                             lastTable[0].remove();
                         }
                     });
+
                     button.update(() -> button.setChecked(view.getTool() == tool));
                     group.add(button);
 
@@ -637,9 +648,24 @@ public class OMapEditorDialog extends MapEditorDialog {
 
                 mid.row();
 
+                mid.table(Tex.underline, t -> t.add("@editor.cliffedit")).growX().padBottom(3).top();
+
+                mid.row();
+
+                mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).checked(mapEditor.cliffMode).get().marginLeft(-5).marginTop(10f).left();
+
+                mid.row();
+
                 mid.table(t -> {
-                    t.button("@editor.cliffs", Icon.terrain, Styles.flatt, editor::addCliffs).growX().margin(9f);
+                    t.button("@editor.cliffapply", Icon.layers, Styles.flatt, mapEditor::cliffMatrixApply).growX().margin(9f);
                 }).growX().top();
+
+                mid.row();
+
+                mid.table(t -> {
+                    t.button("@editor.cliffclear", Icon.cancel, Styles.flatt, mapEditor::cliffMatrixClear).growX().margin(9f);
+                }).growX().top();
+
             }).margin(0).left().growY();
 
 

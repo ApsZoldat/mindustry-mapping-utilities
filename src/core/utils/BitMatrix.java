@@ -32,17 +32,4 @@ public class BitMatrix {
             matrix[y].set(x, value);
         }
     }
-
-    // for debug purposes
-    public String asString() {
-        String result = "\n";
-
-        for (int i = 0; i < rows; ++i) {
-            for (int j = 0; j < cols; ++j) {
-                result += (getBit(i, j) ? "1" : "0");
-            }
-        }
-
-        return result;
-    }
 }

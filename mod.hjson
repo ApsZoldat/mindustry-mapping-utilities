@@ -10,7 +10,7 @@ main: "core.MappingUtilitiesMod"
 
 description: "WIP"
 
-version: 0
+version: 0.1
 
 minGameVersion: 142
 
