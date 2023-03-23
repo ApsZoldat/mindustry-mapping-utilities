@@ -36,6 +36,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
     private Prov<Rules> resetter;
     private LoadoutDialog loadoutDialog;
     private Boolean customMode = false;
+    private int currentNumberedTeam = 0;
 
     public OCustomRulesDialog() {
         super();
@@ -319,6 +320,55 @@ public class OCustomRulesDialog extends CustomRulesDialog {
                 main = wasMain;
             }, () -> shown[0]).growX().row();
         }
+
+        Table numberedTeamEdit = new Table();
+        boolean[] shown = {false};
+
+        numberedTeamEdit.clear();
+        numberedTeamEdit.left().defaults().fillX().left().pad(5);
+
+        Cons<Integer> resetNumberedTeam = teamID -> {
+            Table wasMain = main;
+            main = numberedTeamEdit;
+
+            TeamRule teams = rules.teams.get(Team.get(teamID));
+
+            numberedTeamEdit.clear();
+            number("@rules.blockhealthmultiplier", f -> teams.blockHealthMultiplier = f, () -> teams.blockHealthMultiplier);
+            number("@rules.blockdamagemultiplier", f -> teams.blockDamageMultiplier = f, () -> teams.blockDamageMultiplier);
+
+            check("@rules.cheat", b -> teams.cheat = b, () -> teams.cheat);
+            check("@rules.rtsai", b -> teams.rtsAi = b, () -> teams.rtsAi, () -> Team.get(teamID) != rules.defaultTeam);
+            check("@rules.corespawn", b -> teams.aiCoreSpawn = b, () -> teams.aiCoreSpawn, () -> teams.rtsAi);
+
+            numberi("@rules.rtsminsquadsize", f -> teams.rtsMinSquad = f, () -> teams.rtsMinSquad, () -> teams.rtsAi, 0, 100);
+            numberi("@rules.rtsmaxsquadsize", f -> teams.rtsMaxSquad = f, () -> teams.rtsMaxSquad, () -> teams.rtsAi, 1, 1000);
+            number("@rules.rtsminattackweight", f -> teams.rtsMinWeight = f, () -> teams.rtsMinWeight, () -> teams.rtsAi);
+
+            check("@rules.infiniteresources", b -> teams.infiniteResources = b, () -> teams.infiniteResources);
+            number("@rules.buildspeedmultiplier", f -> teams.buildSpeedMultiplier = f, () -> teams.buildSpeedMultiplier, 0.001f, 50f);
+
+            number("@rules.unitdamagemultiplier", f -> teams.unitDamageMultiplier = f, () -> teams.unitDamageMultiplier);
+            number("@rules.unitcrashdamagemultiplier", f -> teams.unitCrashDamageMultiplier = f, () -> teams.unitCrashDamageMultiplier);
+            number("@rules.unitbuildspeedmultiplier", f -> teams.unitBuildSpeedMultiplier = f, () -> teams.unitBuildSpeedMultiplier, 0.001f, 50f);
+            number("@rules.unitcostmultiplier", f -> teams.unitCostMultiplier = f, () -> teams.unitCostMultiplier);
+
+
+            main = wasMain;
+        };
+
+        numberi("@rules.numberedteam", f -> {
+            currentNumberedTeam = f;
+            resetNumberedTeam.get(currentNumberedTeam);
+        }, () -> currentNumberedTeam, 0, 255);
+
+        main.row();
+        
+        main.button("[#" + Team.get(currentNumberedTeam).color +  "]" + Integer.toString(currentNumberedTeam), Icon.downOpen, Styles.togglet, () -> {
+            shown[0] = !shown[0];
+        }).marginLeft(14f).width(260f).height(55f).checked(a -> shown[0]).update(b -> b.setText("[#" + Team.get(currentNumberedTeam).color +  "]" + Integer.toString(currentNumberedTeam))).row();
+        main.collapser(numberedTeamEdit, () -> shown[0]);
+        main.row();
 
         title("@rules.misc");
         main.add("@rules.misc.warning").color(Pal.accent).padTop(-10).padRight(100f).padBottom(1);
