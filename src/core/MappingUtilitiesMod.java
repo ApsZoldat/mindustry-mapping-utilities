@@ -1,6 +1,7 @@
 package core;
 
 import arc.util.Log;
+import mindustry.Vars;
 import mindustry.game.EventType.*;
 import mindustry.mod.Mod;
 
@@ -18,6 +19,8 @@ public class MappingUtilitiesMod extends Mod {
     public MappingUtilitiesMod() {
         Events.on(ClientLoadEvent.class, e -> {
             try {
+                Vars.maxSchematicSize = 512; // nobody will mind
+
                 // add max/min zoom sliders to settings
                 ui.settings.graphics.sliderPref("maxzoom", 60, 60, 250, 1,
                 i -> Float.toString(Math.round((i / 10f) * 100f) / 100f) + "x");

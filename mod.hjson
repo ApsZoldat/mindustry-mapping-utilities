@@ -1,5 +1,7 @@
 displayName: "Mapping Utilities"
 
+repo: ApsZoldat/mindustry-mapping-utilities
+
 name: "mindustry-mapping-utilities"
 
 subtitle: "Mod improving map editor QOL"
