@@ -661,7 +661,7 @@ public class OMapEditorDialog extends MapEditorDialog {
 
                 mid.row();
 
-                mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).checked(mapEditor.cliffMode).get().marginLeft(-5).marginTop(10f).left();
+                mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).get().marginLeft(-5).marginTop(10f).left();
 
                 mid.row();
 
@@ -700,6 +700,10 @@ public class OMapEditorDialog extends MapEditorDialog {
                     view.setTool(tool);
                     break;
                 }
+            }
+            if (Core.input.keyTap(KeyCode.c)) {
+                mapEditor.cliffMode = !mapEditor.cliffMode;
+
             }
         }
 

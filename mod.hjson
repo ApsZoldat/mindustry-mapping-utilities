@@ -10,7 +10,7 @@ author: "ApsZoldat"
 
 main: "core.MappingUtilitiesMod"
 
-description: "WIP"
+description: "Small Mindustry mod improving map editor convenience and possibilities. Check README.md for more information."
 
 version: 0.1
 
