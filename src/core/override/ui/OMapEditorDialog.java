@@ -8,7 +8,6 @@ import arc.graphics.g2d.*;
 import arc.input.*;
 import arc.math.*;
 import arc.math.geom.*;
-import arc.scene.actions.*;
 import arc.scene.event.*;
 import arc.scene.style.*;
 import arc.scene.ui.*;
@@ -19,7 +18,7 @@ import core.override.editor.OMapEditor;
 import core.override.editor.OMapView;
 import mindustry.*;
 import mindustry.content.*;
-import mindustry.core.GameState.*;
+import mindustry.core.GameState.State;
 import mindustry.game.*;
 import mindustry.game.MapObjectives.*;
 import mindustry.gen.*;
@@ -36,7 +35,6 @@ import mindustry.editor.*;
 
 import static mindustry.Vars.*;
 
-import java.util.function.Function;
 
 public class OMapEditorDialog extends MapEditorDialog {
     private MapEditorDialog oldDialog;
@@ -293,6 +291,17 @@ public class OMapEditorDialog extends MapEditorDialog {
     public void resumeAfterPlaytest(Map map){
         beginEditMap(map.file);
     }
+
+    public void resumeEditing(){
+        state.set(State.menu);
+        shownWithMap = true;
+        show();
+        state.rules = (lastSavedRules == null ? new Rules() : lastSavedRules);
+        lastSavedRules = null;
+        saved = false;
+        editor.renderer.updateAll();
+    }
+
 
     private void playtest(){
         menu.hide();
