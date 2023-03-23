@@ -29,6 +29,7 @@ import mindustry.ui.GridImage;
 import mindustry.world.Tile;
 
 import static mindustry.Vars.*;
+import static core.ModVars.*;
 
 public class OMapView extends MapView {
     EditorTool tool = EditorTool.pencil;
@@ -39,8 +40,6 @@ public class OMapView extends MapView {
     private Vec2 vec = new Vec2();
     private Rect rect = new Rect();
     private Vec2[][] brushPolygons = new Vec2[MapEditor.brushSizes.length][0];
-
-    public OMapEditor editor;
 
     boolean drawing;
     int lastx, lasty;
@@ -90,13 +89,13 @@ public class OMapView extends MapView {
                 if(button == KeyCode.mouseRight){
                     lastTool = tool;
                     tool = EditorTool.eraser;
-                    editor.currentTool = EditorTool.eraser;
+                    mapEditor.currentTool = EditorTool.eraser;
                 }
 
                 if(button == KeyCode.mouseMiddle){
                     lastTool = tool;
                     tool = EditorTool.zoom;
-                    editor.currentTool = EditorTool.zoom;
+                    mapEditor.currentTool = EditorTool.zoom;
                 }
 
                 mousex = x;
@@ -133,11 +132,11 @@ public class OMapView extends MapView {
                     tool.touchedLine(startx, starty, p.x, p.y);
                 }
 
-                editor.flushOp();
+                mapEditor.flushOp();
 
                 if((button == KeyCode.mouseMiddle || button == KeyCode.mouseRight) && lastTool != null){
                     tool = lastTool;
-                    editor.currentTool = lastTool;
+                    mapEditor.currentTool = lastTool;
                     lastTool = null;
                 }
 
@@ -177,7 +176,7 @@ public class OMapView extends MapView {
 
     public void setTool(EditorTool tool){
         this.tool = tool;
-        editor.currentTool = tool;
+        mapEditor.currentTool = tool;
     }
 
     public boolean isGrid(){
@@ -206,12 +205,12 @@ public class OMapView extends MapView {
         if(Core.input.keyTap(KeyCode.shiftLeft)){
             lastTool = tool;
             tool = EditorTool.pick;
-            editor.currentTool = EditorTool.pick;
+            mapEditor.currentTool = EditorTool.pick;
         }
 
         if(Core.input.keyRelease(KeyCode.shiftLeft) && lastTool != null){
             tool = lastTool;
-            editor.currentTool = lastTool;
+            mapEditor.currentTool = lastTool;
             lastTool = null;
         }
 
@@ -226,14 +225,14 @@ public class OMapView extends MapView {
     }
 
     Point2 project(float x, float y){
-        float ratio = 1f / ((float)editor.width() / editor.height());
+        float ratio = 1f / ((float)mapEditor.width() / mapEditor.height());
         float size = Math.min(width, height);
         float sclwidth = size * zoom;
         float sclheight = size * zoom * ratio;
-        x = (x - getWidth() / 2 + sclwidth / 2 - offsetx * zoom) / sclwidth * editor.width();
-        y = (y - getHeight() / 2 + sclheight / 2 - offsety * zoom) / sclheight * editor.height();
+        x = (x - getWidth() / 2 + sclwidth / 2 - offsetx * zoom) / sclwidth * mapEditor.width();
+        y = (y - getHeight() / 2 + sclheight / 2 - offsety * zoom) / sclheight * mapEditor.height();
 
-        if(editor.drawBlock.size % 2 == 0 && tool != EditorTool.eraser){
+        if(mapEditor.drawBlock.size % 2 == 0 && tool != EditorTool.eraser){
             return Tmp.p1.set((int)(x - 0.5f), (int)(y - 0.5f));
         }else{
             return Tmp.p1.set((int)x, (int)y);
@@ -241,26 +240,26 @@ public class OMapView extends MapView {
     }
 
     private Vec2 unproject(int x, int y){
-        float ratio = 1f / ((float)editor.width() / editor.height());
+        float ratio = 1f / ((float)mapEditor.width() / mapEditor.height());
         float size = Math.min(width, height);
         float sclwidth = size * zoom;
         float sclheight = size * zoom * ratio;
-        float px = ((float)x / editor.width()) * sclwidth + offsetx * zoom - sclwidth / 2 + getWidth() / 2;
-        float py = ((float)(y) / editor.height()) * sclheight
+        float px = ((float)x / mapEditor.width()) * sclwidth + offsetx * zoom - sclwidth / 2 + getWidth() / 2;
+        float py = ((float)(y) / mapEditor.height()) * sclheight
         + offsety * zoom - sclheight / 2 + getHeight() / 2;
         return vec.set(px, py);
     }
 
     @Override
     public void draw(){
-        float ratio = 1f / ((float)editor.width() / editor.height());
+        float ratio = 1f / ((float)mapEditor.width() / mapEditor.height());
         float size = Math.min(width, height);
         float sclwidth = size * zoom;
         float sclheight = size * zoom * ratio;
         float centerx = x + width / 2 + offsetx * zoom;
         float centery = y + height / 2 + offsety * zoom;
 
-        image.setImageSize(editor.width(), editor.height());
+        image.setImageSize(mapEditor.width(), mapEditor.height());
 
         if(!ScissorStack.push(rect.set(x + Core.scene.marginLeft, y + Core.scene.marginBottom, width, height))){
             return;
@@ -269,7 +268,7 @@ public class OMapView extends MapView {
         Draw.color(Pal.remove);
         Lines.stroke(2f);
         Lines.rect(centerx - sclwidth / 2 - 1, centery - sclheight / 2 - 1, sclwidth + 2, sclheight + 2);
-        editor.renderer.draw(centerx - sclwidth / 2 + Core.scene.marginLeft, centery - sclheight / 2 + Core.scene.marginBottom, sclwidth, sclheight);
+        mapEditor.renderer.draw(centerx - sclwidth / 2 + Core.scene.marginLeft, centery - sclheight / 2 + Core.scene.marginBottom, sclwidth, sclheight);
         Draw.reset();
 
         if(grid){
@@ -294,15 +293,15 @@ public class OMapView extends MapView {
 
         int index = 0;
         for(int i = 0; i < MapEditor.brushSizes.length; i++){
-            if(editor.brushSize == MapEditor.brushSizes[i]){
+            if(mapEditor.brushSize == MapEditor.brushSizes[i]){
                 index = i;
                 break;
             }
         }
 
-        float scaling = zoom * Math.min(width, height) / editor.width();
+        float scaling = zoom * Math.min(width, height) / mapEditor.width();
 
-        if (editor.cliffMode) {
+        if (mapEditor.cliffMode) {
             Draw.color(Pal.reactorPurple);
         } else {
             Draw.color(Pal.accent);
@@ -310,7 +309,7 @@ public class OMapView extends MapView {
 
         Lines.stroke(Scl.scl(2f));
 
-        if((!editor.drawBlock.isMultiblock() || editor.cliffMode || tool == EditorTool.eraser) && tool != EditorTool.fill){
+        if((!mapEditor.drawBlock.isMultiblock() || mapEditor.cliffMode || tool == EditorTool.eraser) && tool != EditorTool.fill){
             if(tool == EditorTool.line && drawing){
                 Vec2 v1 = unproject(startx, starty).add(x, y);
                 float sx = v1.x, sy = v1.y;
@@ -326,7 +325,7 @@ public class OMapView extends MapView {
 
                 //pencil square outline
                 if(tool == EditorTool.pencil && tool.mode == 1){
-                    Lines.square(v.x + scaling/2f, v.y + scaling/2f, scaling * ((editor.brushSize == 1.5f ? 1f : editor.brushSize) + 0.5f));
+                    Lines.square(v.x + scaling/2f, v.y + scaling/2f, scaling * ((mapEditor.brushSize == 1.5f ? 1f : mapEditor.brushSize) + 0.5f));
                 }else{
                     Lines.poly(brushPolygons[index], v.x, v.y, scaling);
                 }
@@ -335,11 +334,11 @@ public class OMapView extends MapView {
             if((tool.edit || tool == EditorTool.line) && (!mobile || drawing)){
                 Point2 p = project(mousex, mousey);
                 Vec2 v = unproject(p.x, p.y).add(x, y);
-                float offset = (editor.drawBlock.size % 2 == 0 ? scaling / 2f : 0f);
+                float offset = (mapEditor.drawBlock.size % 2 == 0 ? scaling / 2f : 0f);
                 Lines.square(
                 v.x + scaling / 2f + offset,
                 v.y + scaling / 2f + offset,
-                scaling * editor.drawBlock.size / 2f);
+                scaling * mapEditor.drawBlock.size / 2f);
             }
         }
 
@@ -347,18 +346,16 @@ public class OMapView extends MapView {
         Lines.stroke(Scl.scl(3f));
         Lines.rect(x, y, width, height);
 
-        if (editor.cliffMode) {
+        if (mapEditor.cliffMode) {
             Draw.color(Color.valueOf("8a73c688"));
 
             for (Tile tile : world.tiles) {
-                Boolean cliff_marked = editor.cliffMatrix.getBit(tile.x, tile.y);
+                Boolean cliff_marked = mapEditor.cliffMatrix.getBit(tile.x, tile.y);
 
                 if (cliff_marked != null && cliff_marked) {
                     Vec2 v = unproject(tile.x, tile.y).add(x, y);
 
                     Draw.rect(Core.atlas.white(), v.x + scaling/2f, v.y + scaling/2f, scaling, scaling);
-
-                    //Draw.rect(Core.atlas.white(), v.x + scaling/2f, v.y + scaling/2f, scaling * ((editor.brushSize == 1.5f ? 1f : editor.brushSize) + 0.5f);
                 }
             }
         }

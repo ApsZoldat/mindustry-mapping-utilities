@@ -38,7 +38,7 @@ import static mindustry.Vars.*;
 
 public class OMapEditorDialog extends MapEditorDialog {
     private MapEditorDialog oldDialog;
-    public OMapEditor mapEditor;
+    private OMapEditor mapEditor;
 
     private OMapView view;
     private OMapInfoDialog infoDialog;
@@ -66,7 +66,6 @@ public class OMapEditorDialog extends MapEditorDialog {
         background(Styles.black);
 
         view = new OMapView();
-        view.editor = mapEditor;
         infoDialog = new OMapInfoDialog();
         generateDialog = new MapGenerateDialog(true);
         sectorGenDialog = new SectorGenerateDialog();
