@@ -7,6 +7,7 @@ import arc.math.Mathf;
 import arc.math.geom.Geometry;
 import arc.struct.Seq;
 import arc.struct.StringMap;
+import core.ModVars;
 import core.utils.BitMatrix;
 import mindustry.content.Blocks;
 import mindustry.editor.EditorTile;
@@ -63,6 +64,7 @@ public class OMapEditor extends MapEditor {
 
     @Override
     public void beginEdit(int width, int height){
+        if (ModVars.inGame) return;
         reset();
 
         loading = true;
@@ -74,6 +76,7 @@ public class OMapEditor extends MapEditor {
 
     @Override
     public void beginEdit(Map map){
+        if (ModVars.inGame) return;
         reset();
 
         loading = true;
@@ -89,6 +92,7 @@ public class OMapEditor extends MapEditor {
 
     @Override
     public void beginEdit(Pixmap pixmap){
+        if (ModVars.inGame) return;
         reset();
 
         createTiles(pixmap.width, pixmap.height);

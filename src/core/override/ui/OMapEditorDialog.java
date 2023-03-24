@@ -14,6 +14,7 @@ import arc.scene.ui.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import core.ModVars;
 import core.override.editor.OMapEditor;
 import core.override.editor.OMapView;
 import mindustry.*;
@@ -244,6 +245,8 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     private void editInGame(){
+        ModVars.inGame = true;
+
         menu.hide();
         ui.loadAnd(() -> {
             save();
@@ -288,6 +291,7 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     public void resumeAfterPlaytest(Map map){
+        ModVars.inGame = false;
         beginEditMap(map.file);
     }
 
