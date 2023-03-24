@@ -599,8 +599,15 @@ public class OMapEditorDialog extends MapEditorDialog {
 
                 tools.row();
 
-                tools.table(Tex.underline, t -> t.add("@editor.teams"))
-                .colspan(3).height(40).width(size * 3f + 3f).padBottom(3);
+                Intc teamChanger = (s) -> editor.drawTeam = Team.get(s);
+
+                tools.table(t -> {
+                    t.left();
+                    t.add("@editor.editteam").padLeft(5f).left().update(a -> a.setColor(editor.drawTeam.color));
+                    t.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
+                        .padRight(100f)
+                        .valid(f -> Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255).width(70f).left();
+                }).padTop(-12).padBottom(4f).row();
 
                 tools.row();
 
