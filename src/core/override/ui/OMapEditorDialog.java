@@ -603,9 +603,9 @@ public class OMapEditorDialog extends MapEditorDialog {
 
                 tools.table(t -> {
                     t.left();
-                    t.add("@editor.editteam").padLeft(5f).left().update(a -> a.setColor(editor.drawTeam.color));
+                    t.add("@editor.editteam").padLeft(mobile ? 0f : 5f).left().update(a -> a.setColor(editor.drawTeam.color));
                     t.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
-                        .padRight(100f)
+                        .padRight(100f).update(a -> a.setText(Integer.toString(editor.drawTeam.id)))
                         .valid(f -> Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255).width(70f).left();
                 }).padTop(-12).padBottom(4f).row();
 

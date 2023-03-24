@@ -19,6 +19,8 @@ public class Overrider {
             Vars.editor = newEditor;
             Vars.ui.editor =  new OMapEditorDialog(oldDialog, newEditor);
             ModVars.mapEditor = newEditor;
+
+            HUDOverrider.override();
         } catch (Exception ex) {
             Log.err(ex.toString());
             ui.showException("Mapping Tools Error", ex);
