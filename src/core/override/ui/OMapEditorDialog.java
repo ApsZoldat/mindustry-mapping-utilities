@@ -249,8 +249,6 @@ public class OMapEditorDialog extends MapEditorDialog {
 
         menu.hide();
         ui.loadAnd(() -> {
-            save();
-
             lastSavedRules = state.rules;
             hide();
             //only reset the player; logic.reset() will clear entities, which we do not want

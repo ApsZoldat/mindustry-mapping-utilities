@@ -39,7 +39,7 @@ public class OMapEditor extends MapEditor {
 
     public void cliffMatrixApply() {
         for(Tile tile : world.tiles){
-            if(!cliffMatrix.getBit(tile.x, tile.y) || tile.block() == Blocks.cliff) continue;
+            if(!cliffMatrix.getBit(tile.x, tile.y)) continue;
 
             int rotation = 0;
             for(int i = 0; i < 8; i++){
@@ -49,9 +49,13 @@ public class OMapEditor extends MapEditor {
                 }
             }
 
-            if(rotation != 0){
+            if (rotation != 0) {
                 tile.setBlock(Blocks.cliff);
                 tile.data = (byte)rotation;
+            } else {
+                if (tile.block() == Blocks.cliff) {
+                    tile.setBlock(Blocks.air);
+                }
             }
         }
 
