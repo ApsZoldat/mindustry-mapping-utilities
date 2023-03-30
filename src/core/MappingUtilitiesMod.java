@@ -34,10 +34,6 @@ public class MappingUtilitiesMod extends Mod {
             }
         });
 
-        Events.run(Trigger.uiDrawEnd, () -> {
-            assert true;
-        });
-
         Events.run(Trigger.update, () -> {
             renderer.maxZoom = Core.settings.getInt("maxzoom", 60) / 10f;
             renderer.minZoom = Core.settings.getInt("minzoom", 15) / 10f;

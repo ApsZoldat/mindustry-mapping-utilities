@@ -1,6 +1,7 @@
 package core.override.ui;
 
-import arc.*;
+
+import arc.Core;
 import arc.func.*;
 import arc.graphics.*;
 import arc.scene.style.*;
@@ -9,6 +10,7 @@ import arc.scene.ui.ImageButton.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import core.ui.PlanetBackgroundDialog;
 import core.utils.Stringc;
 import core.utils.Stringp;
 import mindustry.*;
@@ -36,11 +38,13 @@ public class OCustomRulesDialog extends CustomRulesDialog {
     private Prov<Rules> resetter;
     private LoadoutDialog loadoutDialog;
     private Boolean customMode = false;
+    private BaseDialog backgroundDialog;
     private int currentNumberedTeam = 0;
 
     public OCustomRulesDialog() {
         super();
 
+        backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
 
         shown(this::setup);
@@ -249,6 +253,8 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         }, () -> ui.picker.show(rules.ambientLight, rules.ambientLight::set)).left().width(250f).row();
 
         main.button("@rules.weather", this::weatherDialog).width(250f).left().row();
+
+        main.button("@rules.planetbackground", this::backgroundDialog).width(250f).left().row();
 
         main.button("@rules.envbutton", this::environmentDialog).width(250f).left().row();
 
@@ -602,6 +608,10 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         check.left();
         tb.add(check);
         tb.row();
+    }
+
+    void backgroundDialog() {
+        backgroundDialog.show();
     }
 
     void environmentDialog() {
