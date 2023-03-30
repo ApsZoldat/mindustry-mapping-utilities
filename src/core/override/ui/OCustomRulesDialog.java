@@ -11,8 +11,6 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import core.ui.PlanetBackgroundDialog;
-import core.utils.Stringc;
-import core.utils.Stringp;
 import mindustry.*;
 import mindustry.content.*;
 import mindustry.ctype.*;
@@ -412,7 +410,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         }).padTop(0).row();
     }
 
-    void text(String text, Stringc cons, Stringp prov, Boolp condition) {
+    void text(String text, Cons<String> cons, Prov<String> prov, Boolp condition) {
         main.table(t -> {
             t.left();
             t.add(text).left().padRight(5)
