@@ -3,6 +3,7 @@ package core.utils;
 import arc.graphics.*;
 import arc.graphics.gl.FrameBuffer;
 import arc.util.Nullable;
+import mindustry.graphics.g3d.PlanetParams;
 import mindustry.graphics.g3d.PlanetRenderer;
 
 import static mindustry.Vars.*;
@@ -14,6 +15,11 @@ public class PlanetBackgroundDrawer {
 
     static public int size = Math.max(graphics.getWidth(), graphics.getHeight());
     static public float drawSize = Math.max(camera.width, camera.height);
+    static public Boolean changed = true;
+
+    static public void update() {
+        changed = true;
+    }
 
     static public Texture draw() {
         if (state.rules.planetBackground == null) {
@@ -28,7 +34,9 @@ public class PlanetBackgroundDrawer {
             backgroundBuffer = new FrameBuffer(size, size);
         }
 
-        if(resized || backgroundBuffer.resizeCheck(size, size)){
+        if(changed || resized || backgroundBuffer.resizeCheck(size, size)){
+            changed = false;
+
             backgroundBuffer.begin(Color.clear);
 
             var params = state.rules.planetBackground;
