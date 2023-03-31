@@ -599,12 +599,17 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         }
     }
 
-    void envCheck(Table tb, String text, int envVar) {
+    void envCheck(Table tb, String text, int envVar, String description) {
         CheckBox check = new CheckBox(text);
         check.changed(() -> {changeEnv(check, envVar);});
         check.setChecked((Vars.state.rules.env & envVar) != 0);
         check.left();
         tb.add(check);
+        tb.row();
+
+        Cell<Label> desc = tb.add(description);
+        desc.get().setWidth(600f);
+        desc.get().setWrap(true);
         tb.row();
     }
 
@@ -621,14 +626,14 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         main.add("@rules.env.warning").color(Pal.accent).padTop(20).padRight(100f).padBottom(3);
         main.row();
 
-        envCheck(main, "@rules.env.terrestrial", Env.terrestrial);
-        envCheck(main, "@rules.env.space", Env.space);
-        envCheck(main, "@rules.env.underwater", Env.underwater);
-        envCheck(main, "@rules.env.spores", Env.spores);
-        envCheck(main, "@rules.env.scorching", Env.scorching);
-        envCheck(main, "@rules.env.groundOil", Env.groundOil);
-        envCheck(main, "@rules.env.groundWater", Env.groundWater);
-        envCheck(main, "@rules.env.oxygen", Env.oxygen);
+        envCheck(main, "@rules.env.terrestrial", Env.terrestrial, "@rules.env.terrestrial.description");
+        envCheck(main, "@rules.env.space", Env.space, "@rules.env.space.description");
+        envCheck(main, "@rules.env.underwater", Env.underwater, "@rules.env.underwater.description");
+        envCheck(main, "@rules.env.spores", Env.spores, "@rules.env.spores.description");
+        envCheck(main, "@rules.env.scorching", Env.scorching, "@rules.env.scorching.description");
+        envCheck(main, "@rules.env.groundOil", Env.groundOil, "@rules.env.groundOil.description");
+        envCheck(main, "@rules.env.groundWater", Env.groundWater, "@rules.env.groundWater.description");
+        envCheck(main, "@rules.env.oxygen", Env.oxygen, "@rules.env.oxygen.description");
 
         dialog.addCloseButton();
 
