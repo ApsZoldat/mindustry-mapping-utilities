@@ -294,6 +294,7 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     public void resumeEditing(){
+        ModVars.inGame = false;
         state.set(State.menu);
         shownWithMap = true;
         show();
