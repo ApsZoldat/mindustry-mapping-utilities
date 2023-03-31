@@ -12,7 +12,7 @@ main: "core.MappingUtilitiesMod"
 
 description: "Small Mindustry mod improving map editor convenience and possibilities. Check README.md in GitHub for more information."
 
-version: 0.6
+version: 0.7
 
 minGameVersion: 142
 
