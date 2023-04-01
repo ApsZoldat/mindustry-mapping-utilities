@@ -307,7 +307,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
 
                 check("@rules.cheat", b -> teams.cheat = b, () -> teams.cheat);
                 check("@rules.rtsai", b -> teams.rtsAi = b, () -> teams.rtsAi, () -> team != rules.defaultTeam);
-                check("@rules.corespawn", b -> teams.aiCoreSpawn = b, () -> teams.aiCoreSpawn, () -> teams.rtsAi);
+                check("@rules.corespawn", b -> teams.aiCoreSpawn = b, () -> teams.aiCoreSpawn);
 
                 numberi("@rules.rtsminsquadsize", f -> teams.rtsMinSquad = f, () -> teams.rtsMinSquad, () -> teams.rtsAi, 0, 100);
                 numberi("@rules.rtsmaxsquadsize", f -> teams.rtsMaxSquad = f, () -> teams.rtsMaxSquad, () -> teams.rtsAi, 1, 1000);
@@ -343,7 +343,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
 
             check("@rules.cheat", b -> teams.cheat = b, () -> teams.cheat);
             check("@rules.rtsai", b -> teams.rtsAi = b, () -> teams.rtsAi, () -> Team.get(teamID) != rules.defaultTeam);
-            check("@rules.corespawn", b -> teams.aiCoreSpawn = b, () -> teams.aiCoreSpawn, () -> teams.rtsAi);
+            check("@rules.corespawn", b -> teams.aiCoreSpawn = b, () -> teams.aiCoreSpawn);
 
             numberi("@rules.rtsminsquadsize", f -> teams.rtsMinSquad = f, () -> teams.rtsMinSquad, () -> teams.rtsAi, 0, 100);
             numberi("@rules.rtsmaxsquadsize", f -> teams.rtsMaxSquad = f, () -> teams.rtsMaxSquad, () -> teams.rtsAi, 1, 1000);

@@ -289,12 +289,10 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     public void resumeAfterPlaytest(Map map){
-        ModVars.inGame = false;
         beginEditMap(map.file);
     }
 
     public void resumeEditing(){
-        ModVars.inGame = false;
         state.set(State.menu);
         shownWithMap = true;
         show();
@@ -302,6 +300,7 @@ public class OMapEditorDialog extends MapEditorDialog {
         lastSavedRules = null;
         saved = false;
         editor.renderer.updateAll();
+        ModVars.inGame = false;
     }
 
 
