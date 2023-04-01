@@ -236,6 +236,7 @@ public class OMapEditorDialog extends MapEditorDialog {
         shown(() -> {
             oldDialog.hide(); // old editor will show every time this one triggers
 
+            Log.info(shownWithMap);
             if (shownWithMap) { // superclass casts map clear
                 editor.beginEdit(map);
             }
@@ -772,7 +773,7 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     private void tryExit(){
-        ui.showConfirm("@confirm", "@editor.unsaved", this::hide);
+        ui.showConfirm("@confirm", "@editor.unsaved", () -> {hide(); shownWithMap = false;});
     }
 
     private void addBlockSelection(Table cont){
