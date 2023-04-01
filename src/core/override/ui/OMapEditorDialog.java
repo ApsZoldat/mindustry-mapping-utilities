@@ -236,7 +236,6 @@ public class OMapEditorDialog extends MapEditorDialog {
         shown(() -> {
             oldDialog.hide(); // old editor will show every time this one triggers
 
-            Log.info(shownWithMap);
             if (shownWithMap) { // superclass casts map clear
                 editor.beginEdit(map);
             }
