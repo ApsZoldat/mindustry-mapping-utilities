@@ -665,16 +665,18 @@ public class OMapEditorDialog extends MapEditorDialog {
 
                 mid.row();
 
-                mid.table(Tex.underline, t -> t.add("@editor.cliffedit")).growX().padBottom(3).top();
-
-                mid.row();
-
-                mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).get().marginLeft(-5).marginTop(10f).left();
+                mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).padBottom(3f).get().marginLeft(-5).marginTop(10f).left();
 
                 mid.row();
 
                 mid.table(t -> {
-                    t.button("@editor.cliffapply", Icon.layers, Styles.flatt, mapEditor::cliffMatrixApply).growX().margin(9f);
+                    t.button("@editor.cliffup", Icon.up, Styles.flatt, () -> {mapEditor.cliffMatrixApply(false);}).growX().margin(9f);
+                }).growX().top();
+
+                mid.row();
+
+                mid.table(t -> {
+                    t.button("@editor.cliffdown", Icon.down, Styles.flatt, () -> {mapEditor.cliffMatrixApply(true);}).growX().margin(9f);
                 }).growX().top();
 
                 mid.row();

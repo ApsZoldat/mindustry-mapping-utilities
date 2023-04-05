@@ -37,15 +37,49 @@ public class OMapEditor extends MapEditor {
         cliffMatrix = new BitMatrix(width, height);
     }
 
-    public void cliffMatrixApply() {
+    public void cliffMatrixApply(boolean down) {
         for(Tile tile : world.tiles){
             if(!cliffMatrix.getBit(tile.x, tile.y)) continue;
 
             int rotation = 0;
             for(int i = 0; i < 8; i++){
-                Boolean other = cliffMatrix.getBit((tile.x + Geometry.d8[i].x), (tile.y + Geometry.d8[i].y));
-                if(other != null && !other){
+                Tile other = world.tiles.get((tile.x + Geometry.d8[i].x), (tile.y + Geometry.d8[i].y));
+                Boolean otherBit = cliffMatrix.getBit(other.x, other.y);
+
+                if(other != null && !otherBit){
                     rotation |= (1 << i);
+                }
+            }
+
+            if (down) {
+                boolean inMiddle = true;
+
+                for (int j = 0; j < 4; j++) {
+                    if (inMiddle) {
+                        inMiddle = cliffMatrix.getBit((tile.x + Geometry.d4[j].x), (tile.y + Geometry.d4[j].y));
+                    }
+                }
+
+                if (inMiddle) continue;
+
+                rotation = 0;
+                for(int i = 0; i < 8; i++) {
+                    Tile other = world.tiles.get((tile.x + Geometry.d8[i].x), (tile.y + Geometry.d8[i].y));
+                    Boolean otherBit = cliffMatrix.getBit(other.x, other.y);
+
+                    if (other != null && otherBit) {
+                        inMiddle = true;
+
+                        for (int j = 0; j < 4; j++) {
+                            if (inMiddle) {
+                                inMiddle = cliffMatrix.getBit((other.x + Geometry.d4[j].x), (other.y + Geometry.d4[j].y));
+                            }
+                        }
+        
+                        if (inMiddle) {
+                            rotation |= (1 << i);
+                        }
+                    }
                 }
             }
 
