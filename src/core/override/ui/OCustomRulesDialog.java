@@ -10,6 +10,7 @@ import arc.scene.ui.ImageButton.*;
 import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
+import core.ModVars;
 import core.ui.PlanetBackgroundDialog;
 import mindustry.*;
 import mindustry.content.*;
@@ -44,6 +45,14 @@ public class OCustomRulesDialog extends CustomRulesDialog {
 
         backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
+
+        shown(() -> {
+            ModVars.mapEditorDialog.endLandscape();
+        });
+
+        hidden(() -> {
+            ModVars.mapEditorDialog.beginLandscape();
+        });
 
         shown(this::setup);
     }
