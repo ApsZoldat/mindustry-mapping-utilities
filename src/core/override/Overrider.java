@@ -15,10 +15,11 @@ public class Overrider {
         try {
             MapEditorDialog oldDialog = Vars.ui.editor; // shown listener doesn't disappear on this one
 
-            OMapEditor newEditor = new OMapEditor();
-            Vars.editor = newEditor;
-            Vars.ui.editor =  new OMapEditorDialog(oldDialog, newEditor);
-            ModVars.mapEditor = newEditor;
+            ModVars.mapEditor = new OMapEditor();
+            Vars.editor = ModVars.mapEditor;
+
+            ModVars.mapEditorDialog = new OMapEditorDialog(oldDialog, ModVars.mapEditor);
+            Vars.ui.editor = ModVars.mapEditorDialog;
 
             HUDOverrider.override();
         } catch (Exception ex) {

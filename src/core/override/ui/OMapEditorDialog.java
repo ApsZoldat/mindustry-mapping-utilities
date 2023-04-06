@@ -236,12 +236,31 @@ public class OMapEditorDialog extends MapEditorDialog {
         shown(() -> {
             oldDialog.hide(); // old editor will show every time this one triggers
 
+            beginLandscape();
+            editor.clearOp();
+            Core.scene.setScrollFocus(view);
+
             if (shownWithMap) { // superclass casts map clear
                 editor.beginEdit(map);
             }
         });
 
+        hidden(() -> {
+            editor.clearOp();
+            platform.updateRPC();
+            endLandscape();
+        });
+
+
         shown(this::build);
+    }
+
+    public void beginLandscape() {
+        if(!Core.settings.getBool("landscape")) platform.beginForceLandscape();
+    }
+
+    public void endLandscape() {
+        if(!Core.settings.getBool("landscape")) platform.endForceLandscape();
     }
 
     private void editInGame(){

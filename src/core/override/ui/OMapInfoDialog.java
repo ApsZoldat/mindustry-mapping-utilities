@@ -1,5 +1,6 @@
 package core.override.ui;
 
+import mindustry.editor.MapEditor;
 import mindustry.editor.MapGenerateDialog;
 import mindustry.editor.MapInfoDialog;
 import mindustry.editor.MapObjectivesDialog;
@@ -8,6 +9,7 @@ import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import arc.scene.ui.*;
 import arc.struct.*;
+import core.ModVars;
 import mindustry.*;
 import mindustry.game.*;
 import mindustry.gen.*;
@@ -28,6 +30,15 @@ public class OMapInfoDialog extends MapInfoDialog {
         super();
         this.waveInfo = new WaveInfoDialog();
         this.generate = new MapGenerateDialog(false);
+
+        shown(() -> {
+            ModVars.mapEditorDialog.endLandscape();
+        });
+
+        hidden(() -> {
+            ModVars.mapEditorDialog.beginLandscape();
+        });
+
         shown(this::setup);
     }
 
