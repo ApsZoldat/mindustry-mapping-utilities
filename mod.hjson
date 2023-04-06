@@ -10,7 +10,23 @@ author: "ApsZoldat"
 
 main: "core.MappingUtilitiesMod"
 
-description: "Small Mindustry mod improving map editor convenience and possibilities. Check README.md in GitHub for more information."
+description: 
+    '''
+    Small Mindustry mod improving map editor convenience and possibilities
+
+    Improvements:
+
+    - Mixed Tech Unlocked
+    - More Rules Available
+    - Better Cliff Editing
+    - Numbered Teams Editing
+    - Planet Background Editing
+
+    Check README.md in GitHub repo for more detailed information
+
+    ! Work In Progress !
+    More map making tools will be added in future
+    '''
 
 version: 0.9
 
