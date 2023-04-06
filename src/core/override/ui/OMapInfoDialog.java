@@ -35,10 +35,6 @@ public class OMapInfoDialog extends MapInfoDialog {
             ModVars.mapEditorDialog.endLandscape();
         });
 
-        hidden(() -> {
-            ModVars.mapEditorDialog.beginLandscape();
-        });
-
         shown(this::setup);
     }
 
@@ -88,6 +84,7 @@ public class OMapInfoDialog extends MapInfoDialog {
                 r.button("@editor.waves", Icon.units, style, () -> {
                     waveInfo.show();
                     hide();
+                    ModVars.mapEditorDialog.beginLandscape();
                 }).marginLeft(10f);
 
                 r.row();
@@ -95,6 +92,7 @@ public class OMapInfoDialog extends MapInfoDialog {
                 r.button("@editor.objectives", Icon.info, style, () -> {
                     objectives.show(state.rules.objectives.all, state.rules.objectives.all::set);
                     hide();
+                    ModVars.mapEditorDialog.beginLandscape();
                 }).marginLeft(10f);
 
                 r.button("@editor.generation", Icon.terrain, style, () -> {
@@ -109,6 +107,7 @@ public class OMapInfoDialog extends MapInfoDialog {
                         editor.tags.put("genfilters", JsonIO.write(filters));
                     });
                     hide();
+                    ModVars.mapEditorDialog.beginLandscape();
                 }).marginLeft(10f);
             }).colspan(2).center();
 

@@ -46,10 +46,6 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
 
-        shown(() -> {
-            ModVars.mapEditorDialog.endLandscape();
-        });
-
         hidden(() -> {
             ModVars.mapEditorDialog.beginLandscape();
         });
