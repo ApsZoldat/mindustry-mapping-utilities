@@ -20,6 +20,7 @@ import arc.scene.event.Touchable;
 import arc.scene.ui.layout.Scl;
 import arc.util.Time;
 import arc.util.Tmp;
+import core.ModVars;
 import mindustry.editor.EditorTool;
 import mindustry.editor.MapEditor;
 import mindustry.editor.MapView;
@@ -39,7 +40,7 @@ public class OMapView extends MapView {
     private GridImage image = new GridImage(0, 0);
     private Vec2 vec = new Vec2();
     private Rect rect = new Rect();
-    private Vec2[][] brushPolygons = new Vec2[MapEditor.brushSizes.length][0];
+    private Vec2[] brushPolygons;
 
     boolean drawing;
     int lastx, lasty;
@@ -50,11 +51,8 @@ public class OMapView extends MapView {
     public OMapView(){
         super.setTool(EditorTool.zoom); // suppress old MapView class actions (makes it do nothing)
 
-        for(int i = 0; i < MapEditor.brushSizes.length; i++){
-            float size = MapEditor.brushSizes[i];
-            float mod = size % 1f;
-            brushPolygons[i] = Geometry.pixelCircle(size, (index, x, y) -> Mathf.dst(x, y, index - mod, index - mod) <= size - 0.5f);
-        }
+        float size = ModVars.mapEditor.brushSize;
+        brushPolygons = Geometry.pixelCircle(size, (index, x, y) -> Mathf.dst(x, y, index - size % 1f, index - size % 1f) <= size - 0.5f);
 
         Core.input.getInputProcessors().insert(0, new GestureDetector(20, 0.5f, 2, 0.15f, this));
         this.touchable = Touchable.enabled;
@@ -168,6 +166,11 @@ public class OMapView extends MapView {
                 }
             }
         });
+    }
+
+    public void recalculateBrushPoly() {
+        float size = ModVars.mapEditor.brushSize;
+        brushPolygons = Geometry.pixelCircle(size, (index, x, y) -> Mathf.dst(x, y, index - size % 1f, index - size % 1f) <= size - 0.5f);
     }
 
     public EditorTool getTool(){
@@ -315,8 +318,8 @@ public class OMapView extends MapView {
                 float sx = v1.x, sy = v1.y;
                 Vec2 v2 = unproject(lastx, lasty).add(x, y);
 
-                Lines.poly(brushPolygons[index], sx, sy, scaling);
-                Lines.poly(brushPolygons[index], v2.x, v2.y, scaling);
+                Lines.poly(brushPolygons, sx, sy, scaling);
+                Lines.poly(brushPolygons, v2.x, v2.y, scaling);
             }
 
             if((tool.edit || (tool == EditorTool.line && !drawing)) && (!mobile || drawing)){
@@ -327,7 +330,7 @@ public class OMapView extends MapView {
                 if(tool == EditorTool.pencil && tool.mode == 1){
                     Lines.square(v.x + scaling/2f, v.y + scaling/2f, scaling * ((mapEditor.brushSize == 1.5f ? 1f : mapEditor.brushSize) + 0.5f));
                 }else{
-                    Lines.poly(brushPolygons[index], v.x, v.y, scaling);
+                    Lines.poly(brushPolygons, v.x, v.y, scaling);
                 }
             }
         }else{

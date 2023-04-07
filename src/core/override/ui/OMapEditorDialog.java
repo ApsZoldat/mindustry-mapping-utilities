@@ -668,9 +668,25 @@ public class OMapEditorDialog extends MapEditorDialog {
 
             mid.row();
 
+            Floatc brushSizeChanger = (s) -> {
+                if (s != Float.MIN_VALUE) {
+                    editor.brushSize = s;
+                    view.recalculateBrushPoly();
+                }
+            };
+
+            mid.table(t -> {
+                t.left();
+                t.add("@editor.brushsize").left();
+                t.field(Float.toString(editor.brushSize), s -> brushSizeChanger.get(Strings.parseFloat(s))) // TODO: update text when changing through slider
+                    .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(70f).left();
+            }).padTop(4f).padBottom(-7f).row();
+
+            mid.row();
+
             mid.table(Tex.underline, t -> {
                 Slider slider = new Slider(0, MapEditor.brushSizes.length - 1, 1, false);
-                slider.moved(f -> editor.brushSize = MapEditor.brushSizes[(int)f]);
+                slider.moved(f -> {editor.brushSize = MapEditor.brushSizes[(int)f]; view.recalculateBrushPoly();});
                 for(int j = 0; j < MapEditor.brushSizes.length; j++){
                     if(MapEditor.brushSizes[j] == editor.brushSize){
                         slider.setValue(j);
