@@ -699,7 +699,7 @@ public class OMapEditorDialog extends MapEditorDialog {
 
             mid.row();
 
-            mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).padBottom(5f).get().marginLeft(-18f).marginTop(10f).left();
+            mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).padBottom(5f).get().marginLeft(mobile ? -5f : -18f).marginTop(10f).left();
 
             mid.row();
 
