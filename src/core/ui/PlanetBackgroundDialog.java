@@ -19,6 +19,7 @@ import arc.func.Floatp;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.math.Mathf;
+import arc.math.geom.Vec2;
 import arc.math.geom.Vec3;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button;
@@ -164,7 +165,10 @@ public class PlanetBackgroundDialog extends BaseDialog {
     private void setup() {
         params = state.rules.planetBackground;
 
-        // TODO: calculate rotX and rotY when opening dialog
+        if (params != null) {
+            rotX = new Vec2(params.camPos.x, params.camPos.z).angle();
+            rotY = new Vec2(0, params.camPos.y).angle();
+        }
 
         cont.clear();
         cont.pane(m -> main = m);
