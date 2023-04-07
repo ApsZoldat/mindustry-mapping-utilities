@@ -49,6 +49,7 @@ public class OMapEditorDialog extends MapEditorDialog {
     private SectorGenerateDialog sectorGenDialog;
     private MapPlayDialog playtestDialog;
     private ScrollPane pane;
+    private ScrollPane mpane;
     private BaseDialog menu;
     private Table blockSelection;
     private Rules lastSavedRules;
@@ -492,225 +493,239 @@ public class OMapEditorDialog extends MapEditorDialog {
         table(cont -> {
             cont.left();
 
-            cont.table(mid -> {
-                mid.top();
+            Table midout = new Table().top();
+            Table mid = new Table().top();
+            midout.add(mid);
 
-                Table tools = new Table().top();
+            mid.marginRight(22f);
 
-                ButtonGroup<ImageButton> group = new ButtonGroup<>();
-                Table[] lastTable = {null};
+            mpane = new ScrollPane(midout);
+            mpane.setFadeScrollBars(false);
+            mpane.setOverscroll(true, false);
+            mpane.exited(() -> {
+                if(mpane.hasScroll()){
+                    Core.scene.setScrollFocus(view);
+                }
+            });
 
-                Cons<EditorTool> addTool = tool -> {
+            mid.row();
 
-                    ImageButton button = new ImageButton(ui.getIcon(tool.name()), Styles.squareTogglei);
-                    button.clicked(() -> {
-                        view.setTool(tool);
+            Table tools = new Table().top();
+
+            ButtonGroup<ImageButton> group = new ButtonGroup<>();
+            Table[] lastTable = {null};
+
+            Cons<EditorTool> addTool = tool -> {
+
+                ImageButton button = new ImageButton(ui.getIcon(tool.name()), Styles.squareTogglei);
+                button.clicked(() -> {
+                    view.setTool(tool);
+                    if(lastTable[0] != null){
+                        lastTable[0].remove();
+                    }
+                });
+
+                button.update(() -> button.setChecked(view.getTool() == tool));
+                group.add(button);
+
+                if(tool.altModes.length > 0){
+                    button.clicked(l -> {
+                        if(!mobile){
+                            //desktop: rightclick
+                            l.setButton(KeyCode.mouseRight);
+                        }
+                    }, e -> {
+                        //need to double tap
+                        if(mobile && e.getTapCount() < 2){
+                            return;
+                        }
+
                         if(lastTable[0] != null){
                             lastTable[0].remove();
                         }
-                    });
 
-                    button.update(() -> button.setChecked(view.getTool() == tool));
-                    group.add(button);
+                        Table table = new Table(Styles.black9);
+                        table.defaults().size(300f, 70f);
 
-                    if(tool.altModes.length > 0){
-                        button.clicked(l -> {
-                            if(!mobile){
-                                //desktop: rightclick
-                                l.setButton(KeyCode.mouseRight);
-                            }
-                        }, e -> {
-                            //need to double tap
-                            if(mobile && e.getTapCount() < 2){
-                                return;
-                            }
+                        for(int i = 0; i < tool.altModes.length; i++){
+                            int mode = i;
+                            String name = tool.altModes[i];
 
-                            if(lastTable[0] != null){
-                                lastTable[0].remove();
-                            }
-
-                            Table table = new Table(Styles.black9);
-                            table.defaults().size(300f, 70f);
-
-                            for(int i = 0; i < tool.altModes.length; i++){
-                                int mode = i;
-                                String name = tool.altModes[i];
-
-                                table.button(b -> {
-                                    b.left();
-                                    b.marginLeft(6);
-                                    b.setStyle(Styles.flatTogglet);
-                                    b.add(Core.bundle.get("toolmode." + name)).left();
-                                    b.row();
-                                    b.add(Core.bundle.get("toolmode." + name + ".description")).color(Color.lightGray).left();
-                                }, () -> {
-                                    tool.mode = (tool.mode == mode ? -1 : mode);
-                                    table.remove();
-                                }).update(b -> b.setChecked(tool.mode == mode));
-                                table.row();
-                            }
-
-                            table.update(() -> {
-                                Vec2 v = button.localToStageCoordinates(Tmp.v1.setZero());
-                                table.setPosition(v.x, v.y, Align.topLeft);
-                                if(!isShown()){
-                                    table.remove();
-                                    lastTable[0] = null;
-                                }
-                            });
-
-                            table.pack();
-                            table.act(Core.graphics.getDeltaTime());
-
-                            addChild(table);
-                            lastTable[0] = table;
-                        });
-                    }
-
-
-                    Label mode = new Label("");
-                    mode.setColor(Pal.remove);
-                    mode.update(() -> mode.setText(tool.mode == -1 ? "" : "M" + (tool.mode + 1) + " "));
-                    mode.setAlignment(Align.bottomRight, Align.bottomRight);
-                    mode.touchable = Touchable.disabled;
-
-                    tools.stack(button, mode);
-                };
-
-                tools.defaults().size(size, size);
-
-                tools.button(Icon.menu, Styles.flati, menu::show);
-
-                ImageButton grid = tools.button(Icon.grid, Styles.squareTogglei, () -> view.setGrid(!view.isGrid())).get();
-
-                addTool.get(EditorTool.zoom);
-
-                tools.row();
-
-                ImageButton undo = tools.button(Icon.undo, Styles.flati, editor::undo).get();
-                ImageButton redo = tools.button(Icon.redo, Styles.flati, editor::redo).get();
-
-                addTool.get(EditorTool.pick);
-
-                tools.row();
-
-                undo.setDisabled(() -> !editor.canUndo());
-                redo.setDisabled(() -> !editor.canRedo());
-
-                undo.update(() -> undo.getImage().setColor(undo.isDisabled() ? Color.gray : Color.white));
-                redo.update(() -> redo.getImage().setColor(redo.isDisabled() ? Color.gray : Color.white));
-                grid.update(() -> grid.setChecked(view.isGrid()));
-
-                addTool.get(EditorTool.line);
-                addTool.get(EditorTool.pencil);
-                addTool.get(EditorTool.eraser);
-
-                tools.row();
-
-                addTool.get(EditorTool.fill);
-                addTool.get(EditorTool.spray);
-
-                ImageButton rotate = tools.button(Icon.right, Styles.flati, () -> editor.rotation = (editor.rotation + 1) % 4).get();
-                rotate.getImage().update(() -> {
-                    rotate.getImage().setRotation(editor.rotation * 90);
-                    rotate.getImage().setOrigin(Align.center);
-                });
-
-                tools.row();
-
-                Intc teamChanger = (s) -> editor.drawTeam = Team.get(s);
-
-                tools.table(t -> {
-                    t.left();
-                    t.add("@editor.editteam").padLeft(mobile ? 0f : 5f).left().update(a -> a.setColor(editor.drawTeam.color));
-                    t.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
-                        .padRight(100f).update(a -> a.setText(Integer.toString(editor.drawTeam.id)))
-                        .valid(f -> Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255).width(70f).left();
-                }).padTop(-12).padBottom(4f).row();
-
-                tools.row();
-
-                ButtonGroup<ImageButton> teamgroup = new ButtonGroup<>();
-
-                int i = 0;
-
-                for(Team team : Team.baseTeams){
-                    ImageButton button = new ImageButton(Tex.whiteui, Styles.clearNoneTogglei);
-                    button.margin(4f);
-                    button.getImageCell().grow();
-                    button.getStyle().imageUpColor = team.color;
-                    button.clicked(() -> editor.drawTeam = team);
-                    button.update(() -> button.setChecked(editor.drawTeam == team));
-                    teamgroup.add(button);
-                    tools.add(button);
-
-                    if(i++ % 3 == 2) tools.row();
-                }
-
-                mid.add(tools).top().padBottom(-6);
-
-                mid.row();
-
-                mid.table(Tex.underline, t -> {
-                    Slider slider = new Slider(0, MapEditor.brushSizes.length - 1, 1, false);
-                    slider.moved(f -> editor.brushSize = MapEditor.brushSizes[(int)f]);
-                    for(int j = 0; j < MapEditor.brushSizes.length; j++){
-                        if(MapEditor.brushSizes[j] == editor.brushSize){
-                            slider.setValue(j);
+                            table.button(b -> {
+                                b.left();
+                                b.marginLeft(6);
+                                b.setStyle(Styles.flatTogglet);
+                                b.add(Core.bundle.get("toolmode." + name)).left();
+                                b.row();
+                                b.add(Core.bundle.get("toolmode." + name + ".description")).color(Color.lightGray).left();
+                            }, () -> {
+                                tool.mode = (tool.mode == mode ? -1 : mode);
+                                table.remove();
+                            }).update(b -> b.setChecked(tool.mode == mode));
+                            table.row();
                         }
-                    }
 
-                    var label = new Label("@editor.brush");
-                    label.setAlignment(Align.center);
-                    label.touchable = Touchable.disabled;
+                        table.update(() -> {
+                            Vec2 v = button.localToStageCoordinates(Tmp.v1.setZero());
+                            table.setPosition(v.x, v.y, Align.topLeft);
+                            if(!isShown()){
+                                table.remove();
+                                lastTable[0] = null;
+                            }
+                        });
 
-                    t.top().stack(slider, label).width(size * 3f - 20).padTop(4f);
-                    t.row();
-                }).padTop(5).growX().top();
+                        table.pack();
+                        table.act(Core.graphics.getDeltaTime());
 
-                mid.row();
-
-                if(!mobile){
-                    mid.table(t -> {
-                        t.button("@editor.center", Icon.move, Styles.flatt, view::center).growX().margin(9f);
-                    }).growX().top();
+                        addChild(table);
+                        lastTable[0] = table;
+                    });
                 }
 
-                mid.row();
 
-                mid.table(t -> {
-                    t.button("@editor.cliffs", Icon.terrain, Styles.flatt, editor::addCliffs).growX().margin(9f);
-                }).growX().top();
+                Label mode = new Label("");
+                mode.setColor(Pal.remove);
+                mode.update(() -> mode.setText(tool.mode == -1 ? "" : "M" + (tool.mode + 1) + " "));
+                mode.setAlignment(Align.bottomRight, Align.bottomRight);
+                mode.touchable = Touchable.disabled;
 
-                mid.row();
+                tools.stack(button, mode);
+            };
 
-                mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).padBottom(3f).get().marginLeft(-5).marginTop(10f).left();
+            tools.defaults().size(size, size);
 
-                mid.row();
+            tools.button(Icon.menu, Styles.flati, menu::show);
 
-                mid.table(t -> {
-                    t.button("@editor.cliffup", Icon.up, Styles.flatt, () -> {mapEditor.cliffMatrixApply(false);}).growX().margin(9f);
-                }).growX().top();
+            ImageButton grid = tools.button(Icon.grid, Styles.squareTogglei, () -> view.setGrid(!view.isGrid())).get();
 
-                mid.row();
+            addTool.get(EditorTool.zoom);
 
-                mid.table(t -> {
-                    t.button("@editor.cliffdown", Icon.down, Styles.flatt, () -> {mapEditor.cliffMatrixApply(true);}).growX().margin(9f);
-                }).growX().top();
+            tools.row();
 
-                mid.row();
+            ImageButton undo = tools.button(Icon.undo, Styles.flati, editor::undo).get();
+            ImageButton redo = tools.button(Icon.redo, Styles.flati, editor::redo).get();
 
-                mid.table(t -> {
-                    t.button("@editor.cliffclear", Icon.cancel, Styles.flatt, mapEditor::cliffMatrixClear).growX().margin(9f);
-                }).growX().top();
+            addTool.get(EditorTool.pick);
 
-            }).margin(0).left().growY();
+            tools.row();
 
+            undo.setDisabled(() -> !editor.canUndo());
+            redo.setDisabled(() -> !editor.canRedo());
+
+            undo.update(() -> undo.getImage().setColor(undo.isDisabled() ? Color.gray : Color.white));
+            redo.update(() -> redo.getImage().setColor(redo.isDisabled() ? Color.gray : Color.white));
+            grid.update(() -> grid.setChecked(view.isGrid()));
+
+            addTool.get(EditorTool.line);
+            addTool.get(EditorTool.pencil);
+            addTool.get(EditorTool.eraser);
+
+            tools.row();
+
+            addTool.get(EditorTool.fill);
+            addTool.get(EditorTool.spray);
+
+            ImageButton rotate = tools.button(Icon.right, Styles.flati, () -> editor.rotation = (editor.rotation + 1) % 4).get();
+            rotate.getImage().update(() -> {
+                rotate.getImage().setRotation(editor.rotation * 90);
+                rotate.getImage().setOrigin(Align.center);
+            });
+
+            tools.row();
+
+            Intc teamChanger = (s) -> {
+                if (s != Integer.MIN_VALUE) editor.drawTeam = Team.get(s);
+            };
+
+            tools.table(t -> {
+                t.left();
+                t.add("@editor.editteam").left().update(a -> a.setColor(editor.drawTeam.color));
+                t.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
+                    .padRight(100f).update(a -> {if (a.getText() != "") a.setText(Integer.toString(editor.drawTeam.id));})
+                    .valid(f -> (Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255)).maxTextLength(3).width(70f).left();
+            }).padTop(-12).padBottom(4f).row();
+
+            tools.row();
+
+            ButtonGroup<ImageButton> teamgroup = new ButtonGroup<>();
+
+            int i = 0;
+
+            for(Team team : Team.baseTeams){
+                ImageButton button = new ImageButton(Tex.whiteui, Styles.clearNoneTogglei);
+                button.margin(4f);
+                button.getImageCell().grow();
+                button.getStyle().imageUpColor = team.color;
+                button.clicked(() -> editor.drawTeam = team);
+                button.update(() -> button.setChecked(editor.drawTeam == team));
+                teamgroup.add(button);
+                tools.add(button);
+
+                if(i++ % 3 == 2) tools.row();
+            }
+
+            mid.add(tools).top().padBottom(-6);
+
+            mid.row();
+
+            mid.table(Tex.underline, t -> {
+                Slider slider = new Slider(0, MapEditor.brushSizes.length - 1, 1, false);
+                slider.moved(f -> editor.brushSize = MapEditor.brushSizes[(int)f]);
+                for(int j = 0; j < MapEditor.brushSizes.length; j++){
+                    if(MapEditor.brushSizes[j] == editor.brushSize){
+                        slider.setValue(j);
+                    }
+                }
+
+                var label = new Label("@editor.brush");
+                label.setAlignment(Align.center);
+                label.touchable = Touchable.disabled;
+
+                t.top().stack(slider, label).width(size * 3f - 20).padTop(4f);
+                t.row();
+            }).padTop(5).growX().top();
+
+            mid.row();
+
+            mid.table(t -> {
+                t.button("@editor.center", Icon.move, Styles.flatt, view::center).growX().margin(9f);
+            }).growX().top();
+
+            mid.row();
+
+            mid.table(t -> {
+                t.button("@editor.cliffs", Icon.terrain, Styles.flatt, editor::addCliffs).growX().margin(9f);
+            }).growX().top();
+
+            mid.row();
+
+            mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).padBottom(5f).get().marginLeft(-18f).marginTop(10f).left();
+
+            mid.row();
+
+            mid.table(t -> {
+                t.button("@editor.cliffup", Icon.up, Styles.flatt, () -> {mapEditor.cliffMatrixApply(false);}).growX().margin(9f);
+            }).growX().top();
+
+            mid.row();
+
+            mid.table(t -> {
+                t.button("@editor.cliffdown", Icon.down, Styles.flatt, () -> {mapEditor.cliffMatrixApply(true);}).growX().margin(9f);
+            }).growX().top();
+
+            mid.row();
+
+            mid.table(t -> {
+                t.button("@editor.cliffclear", Icon.cancel, Styles.flatt, mapEditor::cliffMatrixClear).growX().margin(9f);
+            }).growX().top();
+
+            mid.row();
+
+            cont.add(mpane).growY().margin(0).left().top();
 
             cont.table(t -> t.add(view).grow()).grow();
 
             cont.table(this::addBlockSelection).right().growY();
-
         }).grow();
     }
 

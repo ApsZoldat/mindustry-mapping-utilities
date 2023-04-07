@@ -18,7 +18,7 @@ public class HUDOverrider {
     public static void override() {
         try {
             // Numbered team changer
-            Intc teamChanger = (s) -> Call.setPlayerTeamEditor(player, Team.get(s));
+            Intc teamChanger = (s) -> {if (s != Integer.MIN_VALUE) Call.setPlayerTeamEditor(player, Team.get(s));};
 
             Table editorElem = ui.hudGroup.find("editor");
             editorElem.clear();
@@ -46,7 +46,7 @@ public class HUDOverrider {
                     t2.add("@editor.editteam").padLeft(mobile ? 0f : 5f).left().update(a -> a.setColor(player.team().color));
                     t2.row();
                     t2.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
-                        .padRight(60f).update(a -> a.setText(Integer.toString(player.team().id)))
+                        .padRight(60f).update(a -> {if (a.getText() != "") a.setText(Integer.toString(player.team().id));})
                         .valid(f -> Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255).width(70f).left();
                 }).row();
 
