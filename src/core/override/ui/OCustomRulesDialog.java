@@ -11,6 +11,7 @@ import arc.scene.ui.layout.*;
 import arc.struct.*;
 import arc.util.*;
 import core.ModVars;
+import core.ui.HiddenContentDialog;
 import core.ui.PlanetBackgroundDialog;
 import mindustry.*;
 import mindustry.content.*;
@@ -38,6 +39,8 @@ public class OCustomRulesDialog extends CustomRulesDialog {
     private LoadoutDialog loadoutDialog;
     private Boolean customMode = false;
     private BaseDialog backgroundDialog;
+    private HiddenContentDialog <Block> bannedBlocks;
+    private HiddenContentDialog <UnitType> bannedUnits;
     private int currentNumberedTeam = 0;
 
     public OCustomRulesDialog() {
@@ -45,6 +48,8 @@ public class OCustomRulesDialog extends CustomRulesDialog {
 
         backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
+        bannedBlocks = new HiddenContentDialog<Block>("@bannedblocks", ContentType.block, Block::canBeBuilt);
+        bannedUnits = new HiddenContentDialog<UnitType>("@bannedunits", ContentType.unit, u -> !u.isHidden());
 
         hidden(() -> {
             ModVars.mapEditorDialog.beginLandscape();
@@ -181,7 +186,8 @@ public class OCustomRulesDialog extends CustomRulesDialog {
                 () -> {}, () -> {}
         )).left().width(300f).row();
 
-        main.button("@bannedblocks", () -> showBanned("@bannedblocks", ContentType.block, rules.bannedBlocks, Block::canBeBuilt)).left().width(300f).row();
+        //main.button("@bannedblocks", () -> showBanned("@bannedblocks", ContentType.block, rules.bannedBlocks, Block::canBeBuilt)).left().width(300f).row();
+        main.button("@bannedblocks", () -> bannedBlocks.show(rules.bannedBlocks)).left().width(300f).row();
 
         check("@rules.hidebannedblocks", b -> rules.hideBannedBlocks = b, () -> rules.hideBannedBlocks);
         check("@bannedblocks.whitelist", b -> rules.blockWhitelist = b, () -> rules.blockWhitelist);
@@ -197,7 +203,9 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         number("@rules.unitbuildspeedmultiplier", f -> rules.unitBuildSpeedMultiplier = f, () -> rules.unitBuildSpeedMultiplier, 0f, 50f);
         number("@rules.unitcostmultiplier", f -> rules.unitCostMultiplier = f, () -> rules.unitCostMultiplier);
 
-        main.button("@bannedunits", () -> showBanned("@bannedunits", ContentType.unit, rules.bannedUnits, u -> !u.isHidden())).left().width(300f).row();
+        //main.button("@bannedunits", () -> showBanned("@bannedunits", ContentType.unit, rules.bannedUnits, u -> !u.isHidden())).left().width(300f).row();
+        main.button("@bannedunits", () -> bannedUnits.show(rules.bannedUnits)).left().width(300f).row();
+
         check("@bannedunits.whitelist", b -> rules.unitWhitelist = b, () -> rules.unitWhitelist);
 
         title("@rules.title.enemy");
