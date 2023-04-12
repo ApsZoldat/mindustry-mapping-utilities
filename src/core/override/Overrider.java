@@ -6,6 +6,7 @@ import core.ModVars;
 import core.override.editor.OMapEditor;
 import core.override.ui.OCustomRulesDialog;
 import core.override.ui.OMapEditorDialog;
+import core.utils.ChainReflect;
 import mindustry.Vars;
 import mindustry.editor.MapEditorDialog;
 
@@ -23,8 +24,8 @@ public class Overrider {
             ModVars.mapEditorDialog = new OMapEditorDialog(oldDialog, ModVars.mapEditor);
             Vars.ui.editor = ModVars.mapEditorDialog;
 
-            Reflect.set(Reflect.get(ui.custom, "dialog").getClass(), Reflect.get(ui.custom, "dialog"), "dialog", new OCustomRulesDialog());
-            Reflect.set(Reflect.get(ui.editor, "playtestDialog").getClass(), Reflect.get(ui.editor, "playtestDialog"), "dialog", new OCustomRulesDialog());
+            ChainReflect.set(ui.custom, new OCustomRulesDialog(), "dialog", "dialog");
+            ChainReflect.set(ui.editor, new OCustomRulesDialog(), "playtestDialog", "dialog");
 
             HUDOverrider.override();
         } catch (Exception ex) {
