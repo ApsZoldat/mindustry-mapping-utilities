@@ -7,7 +7,9 @@ Things like:
 * Unit editing
 * Maybe even block drawing
 **Should be available when using in-game editing and playtest.**
+
 Possible solution - making a mod menu capable of adding any amount of custom tool panels to user interface anywhere player wants (fully customizable so it won't repeat Scheme Size covering half of the user interface), opportunity to add a keybind to any of these tools
+
 Estimated time of adding - bruh idk
 
 # Soon (TM)
