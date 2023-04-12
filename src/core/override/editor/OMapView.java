@@ -353,7 +353,7 @@ public class OMapView extends MapView {
             Draw.color(Color.valueOf("8a73c688"));
 
             for (Tile tile : world.tiles) {
-                Boolean cliff_marked = mapEditor.cliffMatrix.getBit(tile.x, tile.y);
+                Boolean cliff_marked = mapEditor.cliffMatrix.get(tile.x, tile.y);
 
                 if (cliff_marked != null && cliff_marked) {
                     Vec2 v = unproject(tile.x, tile.y).add(x, y);

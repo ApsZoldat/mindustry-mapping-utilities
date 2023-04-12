@@ -5,10 +5,10 @@ import arc.func.Cons;
 import arc.graphics.Pixmap;
 import arc.math.Mathf;
 import arc.math.geom.Geometry;
+import arc.struct.GridBits;
 import arc.struct.Seq;
 import arc.struct.StringMap;
 import core.ModVars;
-import core.utils.BitMatrix;
 import mindustry.content.Blocks;
 import mindustry.editor.EditorTile;
 import mindustry.editor.EditorTool;
@@ -26,7 +26,7 @@ import static mindustry.Vars.*;
 
 public class OMapEditor extends MapEditor {
     public boolean cliffMode = false; 
-    public BitMatrix cliffMatrix;
+    public GridBits cliffMatrix;
     private boolean loading;
 
     public EditorTool currentTool = EditorTool.pencil;
@@ -34,19 +34,19 @@ public class OMapEditor extends MapEditor {
     private final Context context = new Context();
 
     public void clearCliffMatrix(int width, int height) {
-        cliffMatrix = new BitMatrix(width, height);
+        cliffMatrix = new GridBits(width, height);
     }
 
     public void cliffMatrixApply(boolean down) {
         for(Tile tile : world.tiles){
-            if(!cliffMatrix.getBit(tile.x, tile.y)) continue;
+            if(!cliffMatrix.get(tile.x, tile.y)) continue;
 
             int rotation = 0;
             if (!down) {
                 for(int i = 0; i < 8; i++){
                     Tile other = world.tiles.get((tile.x + Geometry.d8[i].x), (tile.y + Geometry.d8[i].y));
                     if (other != null) {
-                        Boolean otherBit = cliffMatrix.getBit(other.x, other.y);
+                        Boolean otherBit = cliffMatrix.get(other.x, other.y);
     
                         if(other != null && !otherBit){
                             rotation |= (1 << i);
@@ -58,7 +58,7 @@ public class OMapEditor extends MapEditor {
 
                 for (int j = 0; j < 4; j++) {
                     if (inMiddle) {
-                        inMiddle = cliffMatrix.getBit((tile.x + Geometry.d4[j].x), (tile.y + Geometry.d4[j].y));
+                        inMiddle = cliffMatrix.get((tile.x + Geometry.d4[j].x), (tile.y + Geometry.d4[j].y));
                     }
                 }
 
@@ -68,13 +68,13 @@ public class OMapEditor extends MapEditor {
     
                         if (other == null) break;
     
-                        Boolean otherBit = cliffMatrix.getBit(other.x, other.y);
+                        Boolean otherBit = cliffMatrix.get(other.x, other.y);
                         if (otherBit) {
                             inMiddle = true;
     
                             for (int j = 0; j < 4; j++) {
                                 if (inMiddle) {
-                                    inMiddle = cliffMatrix.getBit((other.x + Geometry.d4[j].x), (other.y + Geometry.d4[j].y));
+                                    inMiddle = cliffMatrix.get((other.x + Geometry.d4[j].x), (other.y + Geometry.d4[j].y));
                                 }
                             }
             
@@ -221,7 +221,7 @@ public class OMapEditor extends MapEditor {
                     }
 
                     if (cliffMode && currentTool != EditorTool.zoom) {
-                        cliffMatrix.setBit(wx, wy, currentTool != EditorTool.eraser);
+                        cliffMatrix.set(wx, wy, currentTool != EditorTool.eraser);
                     } else {
                         drawer.get(tile(wx, wy));
                     }
@@ -241,7 +241,7 @@ public class OMapEditor extends MapEditor {
                 }
 
                 if (cliffMode && currentTool != EditorTool.zoom) {
-                    cliffMatrix.setBit(wx, wy, currentTool != EditorTool.eraser);
+                    cliffMatrix.set(wx, wy, currentTool != EditorTool.eraser);
                 } else {
                     drawer.get(tile(wx, wy));
                 }

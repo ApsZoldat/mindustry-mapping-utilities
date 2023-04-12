@@ -1,8 +1,10 @@
 package core.override;
 
 import arc.util.Log;
+import arc.util.Reflect;
 import core.ModVars;
 import core.override.editor.OMapEditor;
+import core.override.ui.OCustomRulesDialog;
 import core.override.ui.OMapEditorDialog;
 import mindustry.Vars;
 import mindustry.editor.MapEditorDialog;
@@ -20,6 +22,9 @@ public class Overrider {
 
             ModVars.mapEditorDialog = new OMapEditorDialog(oldDialog, ModVars.mapEditor);
             Vars.ui.editor = ModVars.mapEditorDialog;
+
+            Reflect.set(Reflect.get(ui.custom, "dialog").getClass(), Reflect.get(ui.custom, "dialog"), "dialog", new OCustomRulesDialog());
+            Reflect.set(Reflect.get(ui.editor, "playtestDialog").getClass(), Reflect.get(ui.editor, "playtestDialog"), "dialog", new OCustomRulesDialog());
 
             HUDOverrider.override();
         } catch (Exception ex) {
