@@ -3,16 +3,21 @@ package core.ui;
 import arc.Core;
 import arc.func.Boolf;
 import arc.graphics.Color;
+import arc.scene.Element;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.ScrollPane;
+import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.struct.ObjectSet;
 import arc.struct.Seq;
 import mindustry.ctype.ContentType;
 import mindustry.ctype.UnlockableContent;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
+import mindustry.type.Category;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
+import mindustry.world.Block;
 
 import static mindustry.Vars.*;
 
@@ -21,6 +26,10 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
     private ObjectSet<T> set;
     private Boolf<T> pred;
     private BaseDialog addDialog;
+    private Table buttonTable;
+
+    private String searchText = "";
+    private Category selectedCategory = null;
 
     public HiddenContentDialog(String title, ContentType type, Boolf<T> pred) {
         super(title);
@@ -93,16 +102,51 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
 
     private void rebuildAddDialog() {
         addDialog.cont.clear();
-        addDialog.cont.pane(t -> {
+        addDialog.cont.table(search -> {
+            search.image(Icon.zoom).padRight(8);
+            search.field(searchText, this::rebuildAddDialogPane).maxTextLength(maxNameLength).get().setMessageText("@players.search");
+        }).pad(-2).row();
+        if (type == ContentType.block) {
+            addDialog.cont.table(t -> {
+                t.marginTop(8f);
+                t.defaults().marginRight(4f);
+                for (Category category : Category.values()) {
+                    t.button(ui.getIcon(category.name()), Styles.emptyTogglei, () -> {
+                        if (selectedCategory == category) {
+                            selectedCategory = null;
+                        } else {
+                            selectedCategory = category;
+                        }
+                        rebuildAddDialog();
+                    }).update(i -> i.setChecked(selectedCategory == category)).padRight(6f);
+                }
+            });
+            addDialog.cont.row();
+        }
+        buttonTable = addDialog.cont.table().get();
+        rebuildAddDialogPane(searchText);
+    }
+
+    private void rebuildAddDialogPane(String search) {
+        searchText = search;
+        buttonTable.clear();
+        buttonTable.pane(t -> {
             t.left().margin(14f);
             int[] i = {0};
-            content.<T>getBy(type).each(b -> !set.contains(b) && pred.get(b), b -> {
+            content.<T>getBy(type).each(
+                b -> !set.contains(b) && pred.get(b) && 
+                (search.isEmpty() || b.localizedName.toLowerCase().contains(search.toLowerCase())),
+                
+                b -> {
                 int cols = mobile && Core.graphics.isPortrait() ? 4 : 12;
+                if (selectedCategory != null && type == ContentType.block) {
+                    if (((Block)b).category != selectedCategory) return;
+                }
                 t.button(new TextureRegionDrawable(b.uiIcon), Styles.flati, iconMed, () -> {
                     set.add(b);
                     rebuild();
                     rebuildAddDialog();
-                }).size(60f);
+                }).tooltip(b.localizedName).size(60f);
 
                 if(++i[0] % cols == 0){
                     t.row();
