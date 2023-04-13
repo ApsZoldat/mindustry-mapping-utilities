@@ -40,6 +40,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
     private Boolean customMode = false;
     private BaseDialog backgroundDialog;
     private HiddenContentDialog <Block> bannedBlocks;
+    private HiddenContentDialog <Block> revealedBlocks;
     private HiddenContentDialog <UnitType> bannedUnits;
     private int currentNumberedTeam = 0;
 
@@ -49,6 +50,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
         bannedBlocks = new HiddenContentDialog<Block>("@bannedblocks", ContentType.block, Block::canBeBuilt);
+        revealedBlocks = new HiddenContentDialog<Block>("@rules.revealedblocks", ContentType.block, b -> true);
         bannedUnits = new HiddenContentDialog<UnitType>("@bannedunits", ContentType.unit, u -> !u.isHidden());
 
         hidden(() -> {
@@ -112,6 +114,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
 
         //main.button("@bannedblocks", () -> showBanned("@bannedblocks", ContentType.block, rules.bannedBlocks, Block::canBeBuilt)).left().width(300f).row();
         main.button("@bannedblocks", () -> bannedBlocks.show(rules.bannedBlocks)).left().width(300f).row();
+        main.button("@rules.revealedblocks", () -> revealedBlocks.show(rules.revealedBlocks)).left().width(300f).row();
 
         check("@rules.hidebannedblocks", b -> rules.hideBannedBlocks = b, () -> rules.hideBannedBlocks);
         check("@bannedblocks.whitelist", b -> rules.blockWhitelist = b, () -> rules.blockWhitelist);
