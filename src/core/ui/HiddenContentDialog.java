@@ -3,10 +3,8 @@ package core.ui;
 import arc.Core;
 import arc.func.Boolf;
 import arc.graphics.Color;
-import arc.scene.Element;
 import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.ScrollPane;
-import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectSet;
 import arc.struct.Seq;
@@ -27,6 +25,7 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
     private Boolf<T> pred;
     private BaseDialog addDialog;
     private Table buttonTable;
+    private Table buttonTableAdd;
 
     private String searchText = "";
     private Category selectedCategory = null;
@@ -63,10 +62,45 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
     }
 
     private void rebuild() {
-        float previousScroll = cont.getChildren().isEmpty() ? 0f : ((ScrollPane)cont.getChildren().first()).getScrollY();
-
         cont.clear();
-        cont.pane(t -> {
+        cont.table(search -> {
+            search.image(Icon.zoom).padRight(8);
+            search.field(searchText, this::rebuildPane).maxTextLength(maxNameLength).get().setMessageText("@players.search");
+        }).pad(-2).row();
+        if (type == ContentType.block) {
+            cont.table(t -> {
+                t.marginTop(8f);
+                t.defaults().marginRight(4f);
+                for (Category category : Category.values()) {
+                    t.button(ui.getIcon(category.name()), Styles.emptyTogglei, () -> {
+                        if (selectedCategory == category) {
+                            selectedCategory = null;
+                        } else {
+                            selectedCategory = category;
+                        }
+                        rebuildPane(searchText);
+                    }).update(i -> i.setChecked(selectedCategory == category)).padRight(6f);
+                }
+            });
+            cont.row();
+        }
+
+        buttonTable = cont.table().get();
+        
+        cont.row();
+        cont.button("@add", Icon.add, () -> {addDialog.show();}).size(300f, 64f);
+
+        rebuildPane(searchText);
+    };
+
+    private void rebuildPane(String search) {
+        searchText = search;
+
+        float previousScroll = buttonTable.getChildren().isEmpty() ? 0f : ((ScrollPane)buttonTable.getChildren().first()).getScrollY();
+
+        buttonTable.clear();
+
+        buttonTable.pane(t -> {
             t.margin(10f);
 
             if(set.isEmpty()){
@@ -80,25 +114,29 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
             int i = 0;
 
             for(T con : array){
-                t.table(Tex.underline, b -> {
-                    b.left().margin(4f);
-                    b.image(con.uiIcon).size(iconMed).padRight(3);
-                    b.add(con.localizedName).color(Color.lightGray).padLeft(3).growX().left().wrap();
+                if (selectedCategory != null && type == ContentType.block) {
+                    if (((Block)con).category != selectedCategory) continue;
+                }
 
-                    b.button(Icon.cancel, Styles.clearNonei, () -> {
-                        set.remove(con);
-                        rebuild();
-                    }).size(70f).pad(-4f).padLeft(0f);
-                }).size(300f, 70f).padRight(5);
-
-                if(++i % cols == 0){
-                    t.row();
+                if (search.isEmpty() || con.localizedName.toLowerCase().contains(search.toLowerCase())) {
+                    t.table(Tex.underline, b -> {
+                        b.left().margin(4f);
+                        b.image(con.uiIcon).size(iconMed).padRight(3);
+                        b.add(con.localizedName).color(Color.lightGray).padLeft(3).growX().left().wrap();
+    
+                        b.button(Icon.cancel, Styles.clearNonei, () -> {
+                            set.remove(con);
+                            rebuild();
+                        }).size(70f).pad(-4f).padLeft(0f);
+                    }).size(300f, 70f).padRight(5);
+    
+                    if(++i % cols == 0){
+                        t.row();
+                    }
                 }
             }
         }).get().setScrollYForce(previousScroll);
-        cont.row();
-        cont.button("@add", Icon.add, () -> {addDialog.show();}).size(300f, 64f);
-    };
+    }
 
     private void rebuildAddDialog() {
         addDialog.cont.clear();
@@ -117,20 +155,20 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
                         } else {
                             selectedCategory = category;
                         }
-                        rebuildAddDialog();
+                        rebuildAddDialogPane(searchText);
                     }).update(i -> i.setChecked(selectedCategory == category)).padRight(6f);
                 }
             });
             addDialog.cont.row();
         }
-        buttonTable = addDialog.cont.table().get();
+        buttonTableAdd = addDialog.cont.table().get();
         rebuildAddDialogPane(searchText);
     }
 
     private void rebuildAddDialogPane(String search) {
         searchText = search;
-        buttonTable.clear();
-        buttonTable.pane(t -> {
+        buttonTableAdd.clear();
+        buttonTableAdd.pane(t -> {
             t.left().margin(14f);
             int[] i = {0};
             content.<T>getBy(type).each(
