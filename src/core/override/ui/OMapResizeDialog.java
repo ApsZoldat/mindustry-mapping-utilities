@@ -13,7 +13,7 @@ import mindustry.graphics.Pal;
 import static mindustry.Vars.*;
 
 public class OMapResizeDialog extends MapResizeDialog {
-    public static int minSize = 1, maxSize = 2048, increment = 64;
+    public static int minSize = 1, maxSize = 65535, increment = 64;
 
     int width, height, shiftX, shiftY;
 
@@ -38,7 +38,7 @@ public class OMapResizeDialog extends MapResizeDialog {
                 table.field((w ? width : height) + "", TextFieldFilter.digitsOnly, value -> {
                     int val = Integer.parseInt(value);
                     if(w) width = val; else height = val;
-                }).valid(value -> Strings.canParsePositiveInt(value) && Integer.parseInt(value) <= maxSize && Integer.parseInt(value) >= minSize).maxTextLength(4);
+                }).valid(value -> Strings.canParsePositiveInt(value) && Integer.parseInt(value) <= maxSize && Integer.parseInt(value) >= minSize).maxTextLength(5);
 
                 table.row();
             }
@@ -50,7 +50,7 @@ public class OMapResizeDialog extends MapResizeDialog {
                 table.field((x ? shiftX : shiftY) + "", value -> {
                     int val = Integer.parseInt(value);
                     if(x) shiftX = val; else shiftY = val;
-                }).valid(Strings::canParseInt).maxTextLength(4);
+                }).valid(Strings::canParseInt).maxTextLength(5);
 
                 table.row();
             }

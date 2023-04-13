@@ -202,11 +202,21 @@ public class OMapEditorDialog extends MapEditorDialog {
         }).padTop(!steam && !experimental ? -3 : 1).size(swidth * 2f + 10, 60f);
 
         resizeDialog = new OMapResizeDialog((width, height, shiftX, shiftY) -> {
-            if(!(editor.width() == width && editor.height() == height && shiftX == 0 && shiftY == 0)){
-                ui.loadAnd(() -> {
-                    editor.resize(width, height, shiftX, shiftY);
-                    mapEditor.clearCliffMatrix((int)width, (int)height);
-                });
+            if (width > 2048 || height > 2048)  {
+                ui.showConfirm("@editor.resizewarning", () -> {
+                    if(!(editor.width() == width && editor.height() == height && shiftX == 0 && shiftY == 0)){
+                    ui.loadAnd(() -> {
+                        editor.resize(width, height, shiftX, shiftY);
+                        mapEditor.clearCliffMatrix((int)width, (int)height);
+                    });
+                }});
+            } else {
+                if(!(editor.width() == width && editor.height() == height && shiftX == 0 && shiftY == 0)){
+                    ui.loadAnd(() -> {
+                        editor.resize(width, height, shiftX, shiftY);
+                        mapEditor.clearCliffMatrix((int)width, (int)height);
+                    });
+                }
             }
         });
 
