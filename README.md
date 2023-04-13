@@ -1,5 +1,7 @@
 Small Mindustry mod improving map editor convenience and possibilities
 
+**Maps created with this mod are fully compatible with vanilla**
+
 ## Improvements:
 
 * **Mixed Tech Unlocked** *(use it wisely, please)*

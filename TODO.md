@@ -15,7 +15,6 @@ Estimated time of adding - bruh idk
 
 # Soon (TM)
 * **Dynamic planet selection**: Copy Slotterleet's PR code?
-* **Better banned units/blocks menu**: Search and block category selecting should make it easier to use the menu
 * **Revealed blocks editing**: Time to add some funi hidden blocks
 * **Fill on cliff tools**: Requires to override EditorTool enum
 
