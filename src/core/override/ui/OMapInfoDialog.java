@@ -82,8 +82,6 @@ public class OMapInfoDialog extends MapInfoDialog {
                 var style = Styles.flatt;
 
                 r.button("@editor.rules", Icon.list, style, () -> {
-                    ruleInfo.show(Vars.state.rules, () -> Vars.state.rules = new Rules());
-                    ruleInfo.hide();
                     ORuleInfo.show(Vars.state.rules, () -> Vars.state.rules = new Rules());
                     preventLandscape = true;
                     hide();

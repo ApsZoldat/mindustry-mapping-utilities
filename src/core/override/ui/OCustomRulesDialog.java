@@ -62,10 +62,14 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         shown(this::setup);
     }
 
-    void setup() {
-        this.rules = Vars.state.rules;
-        this.resetter = () -> Vars.state.rules = new Rules();
+    public void show(Rules rules, Prov<Rules> resetter){
+        Log.info(resetter);
+        this.rules = rules;
+        this.resetter = resetter;
+        super.show(rules, resetter);
+    }
 
+    void setup() {
         cont.clear();
         cont.pane(m -> main = m).scrollX(false);
         main.margin(10f);
