@@ -729,6 +729,10 @@ public class OMapEditorDialog extends MapEditorDialog {
 
             mid.row();
 
+            mid.check("@editor.showcliffs", b -> view.showCliffs = b).update(c -> c.setChecked(view.showCliffs)).padBottom(5f).get().marginLeft(mobile ? -5f : -18f).marginTop(10f).left();
+
+            mid.row();
+
             mid.table(t -> {
                 t.button("@editor.cliffup", Icon.up, Styles.flatt, () -> {mapEditor.cliffMatrixApply(false);}).growX().margin(9f);
             }).growX().top();

@@ -21,6 +21,7 @@ import arc.scene.ui.layout.Scl;
 import arc.util.Time;
 import arc.util.Tmp;
 import core.ModVars;
+import mindustry.content.Blocks;
 import mindustry.editor.EditorTool;
 import mindustry.editor.MapEditor;
 import mindustry.editor.MapView;
@@ -41,6 +42,8 @@ public class OMapView extends MapView {
     private Vec2 vec = new Vec2();
     private Rect rect = new Rect();
     private Vec2[] brushPolygons;
+
+    public boolean showCliffs;
 
     boolean drawing;
     int lastx, lasty;
@@ -359,6 +362,18 @@ public class OMapView extends MapView {
                     Vec2 v = unproject(tile.x, tile.y).add(x, y);
 
                     Draw.rect(Core.atlas.white(), v.x + scaling/2f, v.y + scaling/2f, scaling, scaling);
+                }
+            }
+        }
+
+        Draw.color(new Color(255f, 255f, 255f, 255f));
+
+        if (showCliffs) {
+            for (Tile tile : world.tiles) {
+                if (tile.block() == Blocks.cliff) {
+                    Vec2 v = unproject(tile.x, tile.y).add(x, y);
+
+                    Draw.rect(Core.atlas.find("cliff"), v.x + scaling/2f, v.y + scaling/2f, scaling, scaling);
                 }
             }
         }
