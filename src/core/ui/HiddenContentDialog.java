@@ -8,6 +8,8 @@ import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectSet;
 import arc.struct.Seq;
+import arc.util.Log;
+import mindustry.content.Blocks;
 import mindustry.ctype.ContentType;
 import mindustry.ctype.UnlockableContent;
 import mindustry.gen.Icon;
@@ -27,6 +29,8 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
     private Table buttonTable;
     private Table buttonTableAdd;
 
+    private boolean isRevealedBlocks;
+
     private String searchText = "";
     private Category selectedCategory = null;
 
@@ -35,6 +39,11 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
 
         this.type = type;
         this.pred = pred;
+
+        if (type == ContentType.block) {
+            // 400 iq gigachad move
+            if (((Boolf<Block>)pred).get(Blocks.cliff)) isRevealedBlocks = true;
+        }
 
         addDialog = new BaseDialog("@add");
         addDialog.addCloseButton();
@@ -67,7 +76,7 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
             search.image(Icon.zoom).padRight(8);
             search.field(searchText, this::rebuildPane).maxTextLength(maxNameLength).get().setMessageText("@players.search");
         }).pad(-2).row();
-        if (type == ContentType.block) {
+        if (type == ContentType.block && !isRevealedBlocks) {
             cont.table(t -> {
                 t.marginTop(8f);
                 t.defaults().marginRight(4f);
@@ -144,7 +153,7 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
             search.image(Icon.zoom).padRight(8);
             search.field(searchText, this::rebuildAddDialogPane).maxTextLength(maxNameLength).get().setMessageText("@players.search");
         }).pad(-2).row();
-        if (type == ContentType.block) {
+        if (type == ContentType.block && !isRevealedBlocks) {
             addDialog.cont.table(t -> {
                 t.marginTop(8f);
                 t.defaults().marginRight(4f);
@@ -177,8 +186,8 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
                 
                 b -> {
                 int cols = mobile && Core.graphics.isPortrait() ? 4 : 12;
-                if (selectedCategory != null && type == ContentType.block) {
-                    if (((Block)b).category != selectedCategory) return;
+                if (type == ContentType.block) {
+                    if (selectedCategory != null && ((Block)b).category != selectedCategory) return;
                 }
                 t.button(new TextureRegionDrawable(b.uiIcon), Styles.flati, iconMed, () -> {
                     set.add(b);

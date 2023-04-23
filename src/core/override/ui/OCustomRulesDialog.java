@@ -50,7 +50,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
         bannedBlocks = new HiddenContentDialog<Block>("@bannedblocks", ContentType.block, Block::canBeBuilt);
-        revealedBlocks = new HiddenContentDialog<Block>("@rules.revealedblocks", ContentType.block, b -> true);
+        revealedBlocks = new HiddenContentDialog<Block>("@rules.revealedblocks", ContentType.block, b -> !b.canBeBuilt());
         bannedUnits = new HiddenContentDialog<UnitType>("@bannedunits", ContentType.unit, u -> !u.isHidden());
 
         hidden(() -> {
@@ -63,7 +63,6 @@ public class OCustomRulesDialog extends CustomRulesDialog {
     }
 
     public void show(Rules rules, Prov<Rules> resetter){
-        Log.info(resetter);
         this.rules = rules;
         this.resetter = resetter;
         super.show(rules, resetter);
@@ -102,6 +101,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         check("@rules.schematic", b -> rules.schematicsAllowed = b, () -> rules.schematicsAllowed);
         check("@rules.coreincinerates", b -> rules.coreIncinerates = b, () -> rules.coreIncinerates);
         check("@rules.cleanupdeadteams", b -> rules.cleanupDeadTeams = b, () -> rules.cleanupDeadTeams, () -> rules.pvp);
+        check("@rules.ghostblocks", b -> rules.ghostBlocks = b, () -> rules.ghostBlocks);
         check("@rules.disableworldprocessors", b -> rules.disableWorldProcessors = b, () -> rules.disableWorldProcessors);
         number("@rules.buildcostmultiplier", false, f -> rules.buildCostMultiplier = f, () -> rules.buildCostMultiplier, () -> !rules.infiniteResources);
         number("@rules.buildspeedmultiplier", f -> rules.buildSpeedMultiplier = f, () -> rules.buildSpeedMultiplier, 0.001f, 50f);
@@ -142,6 +142,8 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         title("@rules.title.enemy");
         check("@rules.attack", b -> rules.attackMode = b, () -> rules.attackMode);
         check("@rules.corecapture", b -> rules.coreCapture = b, () -> rules.coreCapture);
+        check("@rules.coredestroyclear", b -> rules.coreDestroyClear = b, () -> rules.coreDestroyClear);
+        main.add("@rules.coredestroyclearinfo").color(Pal.accent).padTop(4f).padRight(100f).padBottom(10f).row();
         check("@rules.placerangecheck", b -> rules.placeRangeCheck = b, () -> rules.placeRangeCheck);
         check("@rules.polygoncoreprotection", b -> rules.polygonCoreProtection = b, () -> rules.polygonCoreProtection);
         number("@rules.enemycorebuildradius", f -> rules.enemyCoreBuildRadius = f * tilesize, () -> Math.min(rules.enemyCoreBuildRadius / tilesize, 200), () -> !rules.polygonCoreProtection);
@@ -326,6 +328,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         check("@rules.misc.cangameover", b -> rules.canGameOver = b, () -> rules.canGameOver);
         check("@rules.misc.unitpayupdate", b -> rules.unitPayloadUpdate = b, () -> rules.unitPayloadUpdate);
 
+        numberi("@rules.misc.winwave", b -> rules.winWave = b, () -> rules.winWave, 0, Integer.MAX_VALUE);
         number("@rules.misc.drag", f -> rules.dragMultiplier = f, () -> rules.dragMultiplier);
         main.row();
 
