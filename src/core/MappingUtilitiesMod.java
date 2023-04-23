@@ -5,8 +5,6 @@ import mindustry.Vars;
 import mindustry.game.EventType.*;
 import mindustry.mod.Mod;
 
-
-import arc.Core;
 import arc.Events;
 import core.override.Overrider;
 

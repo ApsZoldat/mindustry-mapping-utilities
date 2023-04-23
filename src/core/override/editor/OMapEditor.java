@@ -8,6 +8,7 @@ import arc.math.geom.Geometry;
 import arc.struct.GridBits;
 import arc.struct.Seq;
 import arc.struct.StringMap;
+import arc.util.Log;
 import core.ModVars;
 import mindustry.content.Blocks;
 import mindustry.editor.EditorTile;

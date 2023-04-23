@@ -52,7 +52,7 @@ public class OMapView extends MapView {
     EditorTool lastTool;
 
     public OMapView(){
-        super.setTool(EditorTool.zoom); // suppress old MapView class actions (makes it do nothing)
+        ModVars.oldMapView.setTool(EditorTool.zoom); // suppress old MapView class actions (makes it do nothing)
 
         float size = ModVars.mapEditor.brushSize;
         brushPolygons = Geometry.pixelCircle(size, (index, x, y) -> Mathf.dst(x, y, index - size % 1f, index - size % 1f) <= size - 0.5f);
@@ -395,6 +395,7 @@ public class OMapView extends MapView {
         if(!active()) return false;
         offsetx += deltaX / zoom / 2;  // old editor pan works too
         offsety += deltaY / zoom / 2;
+        
         return false;
     }
 
