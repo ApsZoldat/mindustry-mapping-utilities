@@ -25,6 +25,7 @@ Estimated time of adding - bruh idk
 
 # I think about it (but probably unnecessary)
 * **Better map image in resize dialog**: Make map image in resize dialog show the new cropped/extended area
+* **Custom editor hotkeys**: Add editor tools keybind settings
 
 # DEATH (HELP ME WHY DID I THINK ABOUT THESE)
 * **Polygonal brushes**: Turning brush into a hexagon or any other polygon

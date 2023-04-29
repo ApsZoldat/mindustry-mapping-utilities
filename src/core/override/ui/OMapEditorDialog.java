@@ -596,14 +596,13 @@ public class OMapEditorDialog extends MapEditorDialog {
                     });
                 }
 
-
                 Label mode = new Label("");
                 mode.setColor(Pal.remove);
                 mode.update(() -> mode.setText(tool.mode == -1 ? "" : "M" + (tool.mode + 1) + " "));
                 mode.setAlignment(Align.bottomRight, Align.bottomRight);
                 mode.touchable = Touchable.disabled;
 
-                tools.stack(button, mode);
+                tools.stack(button, mode).tooltip("(" + Core.bundle.get("hotkey") + ": " + tool.key + ")");;
             };
 
             tools.defaults().size(size, size);
