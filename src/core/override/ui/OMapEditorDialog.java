@@ -638,7 +638,7 @@ public class OMapEditorDialog extends MapEditorDialog {
             addTool.get(EditorTool.fill);
             addTool.get(EditorTool.spray);
 
-            ImageButton rotate = tools.button(Icon.right, Styles.flati, () -> editor.rotation = (editor.rotation + 1) % 4).get();
+            ImageButton rotate = tools.button(Icon.right, Styles.flati, () -> editor.rotation = (editor.rotation + 1) % 4).tooltip("(" + Core.bundle.get("hotkey") + ": E, R)").get();
             rotate.getImage().update(() -> {
                 rotate.getImage().setRotation(editor.rotation * 90);
                 rotate.getImage().setOrigin(Align.center);
@@ -673,18 +673,25 @@ public class OMapEditorDialog extends MapEditorDialog {
                 }
             };
 
+            Table sizeFieldTable = new Table();
+
             mid.table(t -> {
                 t.left();
                 t.add("@editor.brushsize").left();
-                t.field(Float.toString(editor.brushSize), s -> brushSizeChanger.get(Strings.parseFloat(s))) // TODO: update text when changing through slider
+                sizeFieldTable.field(Float.toString(editor.brushSize), s -> brushSizeChanger.get(Strings.parseFloat(s)))
                     .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(50f).left();
+                t.add(sizeFieldTable);
             }).padTop(4f).marginLeft(18f).padBottom(-7f).row();
 
             mid.row();
 
             mid.table(t -> {
                 Slider slider = new Slider(0, MapEditor.brushSizes.length - 1, 1, false);
-                slider.moved(f -> {editor.brushSize = MapEditor.brushSizes[(int)f]; view.recalculateBrushPoly();});
+                slider.moved(f -> {
+                    editor.brushSize = MapEditor.brushSizes[(int)f];
+                    view.recalculateBrushPoly();
+                    ((TextField)sizeFieldTable.getChildren().toArray()[0]).setText(Float.toString(mapEditor.brushSize));
+                });
                 for(int j = 0; j < MapEditor.brushSizes.length; j++){
                     if(MapEditor.brushSizes[j] == editor.brushSize){
                         slider.setValue(j);
