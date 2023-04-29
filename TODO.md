@@ -15,6 +15,7 @@ Estimated time of adding - bruh idk
 
 # Soon (TM)
 * **Objectives dialog upgrade**: Add objectives/markers copy/pasting, add zooming to the menu, make objective removal button not so dangerous to missclick
+* **Waves dialog upgrade**: Add hidden effects and units to it, negative wave numbers *(they are useful i'm not joking)* and other things
 
 # Not soon but should be made
 * **Unit editing**: Like Testing Utilities unit spawn, but inside the editor *(possible features: precise unit moving)*
