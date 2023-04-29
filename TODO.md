@@ -14,8 +14,6 @@ Possible solution - making a mod menu capable of adding any amount of custom too
 Estimated time of adding - bruh idk
 
 # Soon (TM)
-* **Dynamic planet selection**: Copy Slotterleet's PR code?
-* **Revealed blocks editing**: Time to add some funi hidden blocks
 * **Fill on cliff tools**: Requires to override EditorTool enum
 
 # Not soon but should be made

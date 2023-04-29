@@ -328,6 +328,15 @@ public class OMapView extends MapView {
                 float sx = v1.x, sy = v1.y;
                 Vec2 v2 = unproject(lastx, lasty).add(x, y);
 
+                // straight
+                if(tool.mode == 0){
+                    if(Math.abs(lastx - startx) > Math.abs(lasty - starty)){
+                        v2 = unproject(lastx, starty).add(x, y);
+                    } else {
+                        v2 = unproject(startx, lasty).add(x, y);
+                    }
+                }
+
                 if(mapEditor.squareMode){
                     Lines.square(sx + scaling/2f, sy + scaling/2f, scaling * ((mapEditor.brushSize == 1.5f ? 1f : mapEditor.brushSize) + 0.5f));
                     Lines.square(v2.x + scaling/2f, v2.y + scaling/2f, scaling * ((mapEditor.brushSize == 1.5f ? 1f : mapEditor.brushSize) + 0.5f));
@@ -358,6 +367,19 @@ public class OMapView extends MapView {
                 v.x + scaling / 2f + offset,
                 v.y + scaling / 2f + offset,
                 scaling * mapEditor.drawBlock.size / 2f);
+
+                if(tool == EditorTool.line && drawing){
+                    Vec2 v1 = unproject(startx, starty).add(x, y);
+                    float sx = v1.x, sy = v1.y;
+                    Vec2 v2 = unproject(lastx, lasty).add(x, y);
+
+                    Lines.square(
+                    sx + scaling / 2f + offset,
+                    sy + scaling / 2f + offset,
+                    scaling * mapEditor.drawBlock.size / 2f);
+
+                    Lines.line(sx + scaling/2f, sy + scaling/2f, v2.x + scaling/2f, v2.y + scaling/2f);
+                }
             }
         }
 

@@ -211,15 +211,33 @@ public class OCustomRulesDialog extends CustomRulesDialog {
 
             t.defaults().size(140f, 50f);
 
-            for(Planet planet : new Planet[]{Planets.serpulo, Planets.erekir}) {
+            for(Planet planet : content.planets().select(p -> p.accessible && p.visible && p.isLandable())) {
                 t.button(planet.localizedName, style, () -> {
                     rules.env = planet.defaultEnv;
                     rules.attributes.clear();
                     rules.attributes.add(planet.defaultAttributes);
                     rules.hiddenBuildItems.clear();
                     rules.hiddenBuildItems.addAll(planet.hiddenItems);
-                }).group(group).checked(b -> rules.env == planet.defaultEnv);
+
+                    group.uncheckAll();
+                }).group(group);
+
+                if(t.getChildren().size % 3 == 0){
+                    t.row();
+                }
             }
+
+            group.uncheckAll();
+
+            /* that doesn't work uhh
+            group.getButtons().asSet().each(b -> {
+                if (currentPlanet() != null) {
+                    group.setChecked(currentPlanet().localizedName);
+                } else {
+                    group.uncheckAll();
+                }
+                
+            });*/
 
             t.button("@rules.anyenv", style, () -> {
                 rules.env = Vars.defaultEnv;
@@ -586,4 +604,24 @@ public class OCustomRulesDialog extends CustomRulesDialog {
 
         dialog.show();
     }
+
+    /*
+    Planet currentPlanet() {
+        ObjectSet<Item> planetEnabledItems = new ObjectSet<Item>();
+        ObjectSet<Item> currentEnabledItems = new ObjectSet<Item>();
+
+        for (Planet planet : content.planets()) {
+            currentEnabledItems.clear();
+            planetEnabledItems.clear();
+    
+            for (Item item : content.items()) {
+                if (!rules.hiddenBuildItems.contains(item)) currentEnabledItems.add(item);
+                if (!planet.hiddenItems.contains(item)) planetEnabledItems.add(item);
+            }
+            if (currentEnabledItems.equals(planetEnabledItems)) return planet;
+        }
+
+        return null;
+    }*/
+    // TODO: make planet buttons checking
 }

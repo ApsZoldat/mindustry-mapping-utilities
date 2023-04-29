@@ -268,7 +268,7 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     public void beginLandscape() {
-        if(!Core.settings.getBool("landscape")) platform.beginForceLandscape();
+        platform.beginForceLandscape();
     }
 
     public void endLandscape() {
@@ -523,7 +523,7 @@ public class OMapEditorDialog extends MapEditorDialog {
 
             mid.row();
 
-            Table tools = new Table().top();
+            Table tools = new Table(Tex.underline).top();
             Table teams = new Table().top();
 
             ButtonGroup<ImageButton> group = new ButtonGroup<>();
@@ -655,7 +655,7 @@ public class OMapEditorDialog extends MapEditorDialog {
             
             mid.row();
 
-            mid.check("@toolmode.square", b -> mapEditor.squareMode = b).update(c -> c.setChecked(mapEditor.squareMode)).padBottom(5f).get().marginLeft(checkMargin).marginTop(10f).left();
+            mid.check("@toolmode.square", b -> mapEditor.squareMode = b).update(c -> c.setChecked(mapEditor.squareMode)).padBottom(5f).get().marginLeft(checkMargin).marginTop(18f).left();
 
             mid.row();
 
@@ -667,6 +667,41 @@ public class OMapEditorDialog extends MapEditorDialog {
             
             mid.row();
 
+            Floatc brushSizeChanger = (s) -> {
+                if (s != Float.MIN_VALUE) {
+                    editor.brushSize = s;
+                    view.recalculateBrushPoly();
+                }
+            };
+
+            mid.table(t -> {
+                t.left();
+                t.add("@editor.brushsize").left();
+                t.field(Float.toString(editor.brushSize), s -> brushSizeChanger.get(Strings.parseFloat(s))) // TODO: update text when changing through slider
+                    .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(50f).left();
+            }).padTop(4f).marginLeft(18f).padBottom(-7f).row();
+
+            mid.row();
+
+            mid.table(t -> {
+                Slider slider = new Slider(0, MapEditor.brushSizes.length - 1, 1, false);
+                slider.moved(f -> {editor.brushSize = MapEditor.brushSizes[(int)f]; view.recalculateBrushPoly();});
+                for(int j = 0; j < MapEditor.brushSizes.length; j++){
+                    if(MapEditor.brushSizes[j] == editor.brushSize){
+                        slider.setValue(j);
+                    }
+                }
+
+                var label = new Label("@editor.brush");
+                label.setAlignment(Align.center);
+                label.touchable = Touchable.disabled;
+
+                t.top().stack(slider, label).width(size * 3f - 20).padTop(4f);
+                t.row();
+            }).padTop(10f).growX().top();
+
+            mid.row();
+
             mid.table(Tex.underline, t -> {
                 Slider slider = new Slider(0f, 0.5f, 0.004f, false);
                 slider.setValue(0.012f);
@@ -675,7 +710,7 @@ public class OMapEditorDialog extends MapEditorDialog {
                 label.setAlignment(Align.center);
                 label.touchable = Touchable.disabled;
 
-                t.top().stack(slider, label).width(size * 3f - 20).padTop(4f);
+                t.top().stack(slider, label).width(size * 3f - 20);
                 t.row();
             }).growX().top();
 
@@ -689,7 +724,7 @@ public class OMapEditorDialog extends MapEditorDialog {
                 t.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
                     .padRight(100f).update(a -> {if (a.getText() != "") a.setText(Integer.toString(editor.drawTeam.id));})
                     .valid(f -> (Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255)).maxTextLength(3).width(50f).left();
-            }).padTop(-8).padBottom(4f).row();
+            }).padTop(-8).padBottom(4f).marginLeft(7f).row();
 
             teams.row();
 
@@ -713,41 +748,10 @@ public class OMapEditorDialog extends MapEditorDialog {
             mid.row();
 
             mid.add(teams).top().padBottom(-6);
-
+            
             mid.row();
 
-            Floatc brushSizeChanger = (s) -> {
-                if (s != Float.MIN_VALUE) {
-                    editor.brushSize = s;
-                    view.recalculateBrushPoly();
-                }
-            };
-
-            mid.table(t -> {
-                t.left();
-                t.add("@editor.brushsize").left();
-                t.field(Float.toString(editor.brushSize), s -> brushSizeChanger.get(Strings.parseFloat(s))) // TODO: update text when changing through slider
-                    .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(50f).left();
-            }).padTop(4f).padBottom(-7f).row();
-
-            mid.row();
-
-            mid.table(Tex.underline, t -> {
-                Slider slider = new Slider(0, MapEditor.brushSizes.length - 1, 1, false);
-                slider.moved(f -> {editor.brushSize = MapEditor.brushSizes[(int)f]; view.recalculateBrushPoly();});
-                for(int j = 0; j < MapEditor.brushSizes.length; j++){
-                    if(MapEditor.brushSizes[j] == editor.brushSize){
-                        slider.setValue(j);
-                    }
-                }
-
-                var label = new Label("@editor.brush");
-                label.setAlignment(Align.center);
-                label.touchable = Touchable.disabled;
-
-                t.top().stack(slider, label).width(size * 3f - 20).padTop(4f);
-                t.row();
-            }).padTop(5).growX().top();
+            mid.table(Tex.underline).growX();
 
             mid.row();
 
@@ -785,7 +789,7 @@ public class OMapEditorDialog extends MapEditorDialog {
 
             mid.table(t -> {
                 t.button("@editor.cliffclear", Icon.cancel, Styles.flatt, mapEditor::cliffMatrixClear).growX().margin(9f);
-            }).growX().top();
+            }).growX().top().padBottom(4f);
 
             mid.row();
 

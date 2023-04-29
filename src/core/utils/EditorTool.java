@@ -79,49 +79,53 @@ public enum EditorTool {
             if(!Structs.inBounds(x, y, editor.width(), editor.height())) return;
             Tile tile = editor.tile(x, y);
 
-            //mode 0 or 1, fill everything with the floor/tile or replace it
-            if(mode == 0 || mode == -1){
-                if(editor.drawBlock.isMultiblock()){
-                    // don't fill multiblocks, thanks
-                    // but fill teams when multiblock is selected, thanks, Anuke
-                    pencil.touched(x, y);
-                    return;
-                }
+            if (mapEditor.cliffMode) {
+                fill(x, y, false, t -> !mapEditor.cliffMatrix.get(t.x, t.y), t -> mapEditor.cliffMatrix.set(t.x, t.y, true)); // EZ
+            } else {
+                //mode 0 or 1, fill everything with the floor/tile or replace it
+                if(mode == 0 || mode == -1){
+                    if(editor.drawBlock.isMultiblock()){
+                        // don't fill multiblocks, thanks
+                        // but fill teams when multiblock is selected, thanks, Anuke
+                        pencil.touched(x, y);
+                        return;
+                    }
 
-                //can't fill parts or multiblocks
-                if(tile.block().isMultiblock()){
-                    return;
-                }
+                    //can't fill parts or multiblocks
+                    if(tile.block().isMultiblock()){
+                        return;
+                    }
 
-                Boolf<Tile> tester;
-                Cons<Tile> setter;
+                    Boolf<Tile> tester;
+                    Cons<Tile> setter;
 
-                if(editor.drawBlock.isOverlay()){
-                    Block dest = tile.overlay();
-                    if(dest == editor.drawBlock) return;
-                    tester = t -> t.overlay() == dest && (t.floor().hasSurface() || !t.floor().needsSurface);
-                    setter = t -> t.setOverlay(editor.drawBlock);
-                }else if(editor.drawBlock.isFloor()){
-                    Block dest = tile.floor();
-                    if(dest == editor.drawBlock) return;
-                    tester = t -> t.floor() == dest;
-                    setter = t -> t.setFloorUnder(editor.drawBlock.asFloor());
-                }else{
-                    Block dest = tile.block();
-                    if(dest == editor.drawBlock) return;
-                    tester = t -> t.block() == dest;
-                    setter = t -> t.setBlock(editor.drawBlock, editor.drawTeam);
-                }
+                    if(editor.drawBlock.isOverlay()){
+                        Block dest = tile.overlay();
+                        if(dest == editor.drawBlock) return;
+                        tester = t -> t.overlay() == dest && (t.floor().hasSurface() || !t.floor().needsSurface);
+                        setter = t -> t.setOverlay(editor.drawBlock);
+                    }else if(editor.drawBlock.isFloor()){
+                        Block dest = tile.floor();
+                        if(dest == editor.drawBlock) return;
+                        tester = t -> t.floor() == dest;
+                        setter = t -> t.setFloorUnder(editor.drawBlock.asFloor());
+                    }else{
+                        Block dest = tile.block();
+                        if(dest == editor.drawBlock) return;
+                        tester = t -> t.block() == dest;
+                        setter = t -> t.setBlock(editor.drawBlock, editor.drawTeam);
+                    }
 
-                //replace only when the mode is 0 using the specified functions
-                fill(x, y, mode == 0, tester, setter);
-            }else if(mode == 1){ //mode 1 is team fill
+                    //replace only when the mode is 0 using the specified functions
+                    fill(x, y, mode == 0, tester, setter);
+                }else if(mode == 1){ //mode 1 is team fill
 
-                //only fill synthetic blocks, it's meaningless otherwise
-                if(tile.synthetic()){
-                    Team dest = tile.team();
-                    if(dest == editor.drawTeam) return;
-                    fill(x, y, true, t -> t.getTeamID() == dest.id && t.synthetic(), t -> t.setTeam(editor.drawTeam));
+                    //only fill synthetic blocks, it's meaningless otherwise
+                    if(tile.synthetic()){
+                        Team dest = tile.team();
+                        if(dest == editor.drawTeam) return;
+                        fill(x, y, true, t -> t.getTeamID() == dest.id && t.synthetic(), t -> t.setTeam(editor.drawTeam));
+                    }
                 }
             }
         }
