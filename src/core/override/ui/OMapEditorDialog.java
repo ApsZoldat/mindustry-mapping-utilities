@@ -33,6 +33,7 @@ import mindustry.world.blocks.environment.*;
 import mindustry.world.blocks.storage.*;
 import mindustry.world.meta.*;
 import mindustry.editor.*;
+import core.utils.EditorTool;
 
 import static mindustry.Vars.*;
 
@@ -498,6 +499,7 @@ public class OMapEditorDialog extends MapEditorDialog {
 
     public void build(){
         float size = mobile ? 50f : 58f;
+        float checkMargin = 4f;
 
         clearChildren();
         table(cont -> {
@@ -506,8 +508,9 @@ public class OMapEditorDialog extends MapEditorDialog {
             Table midout = new Table().top();
             Table mid = new Table().top();
             midout.add(mid);
+            mid.defaults().left();
 
-            mid.marginRight(22f);
+            mid.marginRight(6f);
 
             mpane = new ScrollPane(midout);
             mpane.setFadeScrollBars(false);
@@ -521,6 +524,7 @@ public class OMapEditorDialog extends MapEditorDialog {
             mid.row();
 
             Table tools = new Table().top();
+            Table teams = new Table().top();
 
             ButtonGroup<ImageButton> group = new ButtonGroup<>();
             Table[] lastTable = {null};
@@ -535,7 +539,7 @@ public class OMapEditorDialog extends MapEditorDialog {
                     }
                 });
 
-                button.update(() -> button.setChecked(view.getTool() == tool));
+                button.update(() -> button.setChecked(view.OGetTool() == tool));
                 group.add(button);
 
                 if(tool.altModes.length > 0){
@@ -647,15 +651,47 @@ public class OMapEditorDialog extends MapEditorDialog {
                 if (s != Integer.MIN_VALUE) editor.drawTeam = Team.get(s);
             };
 
-            tools.table(t -> {
+            mid.add(tools).top().padBottom(-6);
+            
+            mid.row();
+
+            mid.check("@toolmode.square", b -> mapEditor.squareMode = b).update(c -> c.setChecked(mapEditor.squareMode)).padBottom(5f).get().marginLeft(checkMargin).marginTop(10f).left();
+
+            mid.row();
+
+            mid.check("@toolmode.replace", b -> mapEditor.replaceMode = b).update(c -> c.setChecked(mapEditor.replaceMode)).padBottom(5f).get().marginLeft(checkMargin).marginTop(10f).left();
+
+            mid.row();
+
+            mid.check("@editor.setteam", b -> mapEditor.drawTeamsMode = b).update(c -> c.setChecked(mapEditor.drawTeamsMode)).padBottom(5f).get().marginLeft(checkMargin).marginTop(10f).left();
+            
+            mid.row();
+
+            mid.table(Tex.underline, t -> {
+                Slider slider = new Slider(0f, 0.5f, 0.004f, false);
+                slider.setValue(0.012f);
+                slider.moved(f -> mapEditor.sprayChance = f);
+                var label = new Label("@editor.spraydensity");
+                label.setAlignment(Align.center);
+                label.touchable = Touchable.disabled;
+
+                t.top().stack(slider, label).width(size * 3f - 20).padTop(4f);
+                t.row();
+            }).growX().top();
+
+            mid.row();
+
+            teams.defaults().size(size, size);
+
+            teams.table(t -> {
                 t.left();
                 t.add("@editor.editteam").left().update(a -> a.setColor(editor.drawTeam.color));
                 t.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
                     .padRight(100f).update(a -> {if (a.getText() != "") a.setText(Integer.toString(editor.drawTeam.id));})
-                    .valid(f -> (Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255)).maxTextLength(3).width(70f).left();
-            }).padTop(-12).padBottom(4f).row();
+                    .valid(f -> (Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255)).maxTextLength(3).width(50f).left();
+            }).padTop(-8).padBottom(4f).row();
 
-            tools.row();
+            teams.row();
 
             ButtonGroup<ImageButton> teamgroup = new ButtonGroup<>();
 
@@ -669,12 +705,14 @@ public class OMapEditorDialog extends MapEditorDialog {
                 button.clicked(() -> editor.drawTeam = team);
                 button.update(() -> button.setChecked(editor.drawTeam == team));
                 teamgroup.add(button);
-                tools.add(button);
+                teams.add(button);
 
-                if(i++ % 3 == 2) tools.row();
+                if(i++ % 3 == 2) teams.row();
             }
 
-            mid.add(tools).top().padBottom(-6);
+            mid.row();
+
+            mid.add(teams).top().padBottom(-6);
 
             mid.row();
 
@@ -689,7 +727,7 @@ public class OMapEditorDialog extends MapEditorDialog {
                 t.left();
                 t.add("@editor.brushsize").left();
                 t.field(Float.toString(editor.brushSize), s -> brushSizeChanger.get(Strings.parseFloat(s))) // TODO: update text when changing through slider
-                    .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(70f).left();
+                    .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(50f).left();
             }).padTop(4f).padBottom(-7f).row();
 
             mid.row();
@@ -725,11 +763,11 @@ public class OMapEditorDialog extends MapEditorDialog {
 
             mid.row();
 
-            mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).padBottom(5f).get().marginLeft(mobile ? -5f : -18f).marginTop(10f).left();
+            mid.check("@editor.cliffdraw", b -> mapEditor.cliffMode = b).update(c -> c.setChecked(mapEditor.cliffMode)).padBottom(5f).get().marginLeft(checkMargin).marginTop(10f).left();
 
             mid.row();
 
-            mid.check("@editor.showcliffs", b -> view.showCliffs = b).update(c -> c.setChecked(view.showCliffs)).padBottom(5f).get().marginLeft(mobile ? -5f : -18f).marginTop(10f).left();
+            mid.check("@editor.showcliffs", b -> view.showCliffs = b).update(c -> c.setChecked(view.showCliffs)).padBottom(5f).get().marginLeft(checkMargin).marginTop(10f).left();
 
             mid.row();
 
@@ -763,9 +801,9 @@ public class OMapEditorDialog extends MapEditorDialog {
 
         if(Core.input.ctrl()){
             //alt mode select
-            for(int i = 0; i < view.getTool().altModes.length; i++){
+            for(int i = 0; i < view.OGetTool().altModes.length; i++){
                 if(i + 1 < KeyCode.numbers.length && Core.input.keyTap(KeyCode.numbers[i + 1])){
-                    view.getTool().mode = i;
+                    view.OGetTool().mode = i;
                 }
             }
         }else{

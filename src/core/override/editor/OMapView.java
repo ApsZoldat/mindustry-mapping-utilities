@@ -1,6 +1,7 @@
 package core.override.editor;
 
 import arc.Core;
+import arc.Events;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Lines;
@@ -18,13 +19,15 @@ import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.scene.event.Touchable;
 import arc.scene.ui.layout.Scl;
+import arc.util.Log;
 import arc.util.Time;
 import arc.util.Tmp;
 import core.ModVars;
 import mindustry.content.Blocks;
-import mindustry.editor.EditorTool;
+import core.utils.EditorTool;
 import mindustry.editor.MapEditor;
 import mindustry.editor.MapView;
+import mindustry.game.EventType.Trigger;
 import mindustry.graphics.Pal;
 import mindustry.input.Binding;
 import mindustry.ui.GridImage;
@@ -52,7 +55,7 @@ public class OMapView extends MapView {
     EditorTool lastTool;
 
     public OMapView(){
-        ModVars.oldMapView.setTool(EditorTool.zoom); // suppress old MapView class actions (makes it do nothing)
+        oldMapView.setTool(mindustry.editor.EditorTool.zoom);
 
         float size = ModVars.mapEditor.brushSize;
         brushPolygons = Geometry.pixelCircle(size, (index, x, y) -> Mathf.dst(x, y, index - size % 1f, index - size % 1f) <= size - 0.5f);
@@ -176,7 +179,11 @@ public class OMapView extends MapView {
         brushPolygons = Geometry.pixelCircle(size, (index, x, y) -> Mathf.dst(x, y, index - size % 1f, index - size % 1f) <= size - 0.5f);
     }
 
-    public EditorTool getTool(){
+    public mindustry.editor.EditorTool getTool() { // one more "fake" method
+        return null;
+    }
+
+    public EditorTool OGetTool() {
         return tool;
     }
 
@@ -315,22 +322,28 @@ public class OMapView extends MapView {
 
         Lines.stroke(Scl.scl(2f));
 
-        if((!mapEditor.drawBlock.isMultiblock() || mapEditor.cliffMode || tool == EditorTool.eraser) && tool != EditorTool.fill){
+        if((!mapEditor.drawBlock.isMultiblock() || mapEditor.cliffMode || mapEditor.drawTeamsMode || tool == EditorTool.eraser) && tool != EditorTool.fill){
             if(tool == EditorTool.line && drawing){
                 Vec2 v1 = unproject(startx, starty).add(x, y);
                 float sx = v1.x, sy = v1.y;
                 Vec2 v2 = unproject(lastx, lasty).add(x, y);
 
-                Lines.poly(brushPolygons, sx, sy, scaling);
-                Lines.poly(brushPolygons, v2.x, v2.y, scaling);
+                if(mapEditor.squareMode){
+                    Lines.square(sx + scaling/2f, sy + scaling/2f, scaling * ((mapEditor.brushSize == 1.5f ? 1f : mapEditor.brushSize) + 0.5f));
+                    Lines.square(v2.x + scaling/2f, v2.y + scaling/2f, scaling * ((mapEditor.brushSize == 1.5f ? 1f : mapEditor.brushSize) + 0.5f));
+                }else{
+                    Lines.poly(brushPolygons, sx, sy, scaling);
+                    Lines.poly(brushPolygons, v2.x, v2.y, scaling);
+                }
+
+                Lines.line(sx + scaling/2f, sy + scaling/2f, v2.x + scaling/2f, v2.y + scaling/2f);
             }
 
             if((tool.edit || (tool == EditorTool.line && !drawing)) && (!mobile || drawing)){
                 Point2 p = project(mousex, mousey);
                 Vec2 v = unproject(p.x, p.y).add(x, y);
 
-                //pencil square outline
-                if(tool == EditorTool.pencil && tool.mode == 1){
+                if(mapEditor.squareMode){
                     Lines.square(v.x + scaling/2f, v.y + scaling/2f, scaling * ((mapEditor.brushSize == 1.5f ? 1f : mapEditor.brushSize) + 0.5f));
                 }else{
                     Lines.poly(brushPolygons, v.x, v.y, scaling);

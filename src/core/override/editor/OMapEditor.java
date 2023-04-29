@@ -10,15 +10,17 @@ import arc.struct.Seq;
 import arc.struct.StringMap;
 import arc.util.Log;
 import core.ModVars;
+import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.editor.EditorTile;
-import mindustry.editor.EditorTool;
+import core.utils.EditorTool;
 import mindustry.editor.MapEditor;
 import mindustry.editor.DrawOperation.OpType;
 import mindustry.gen.Building;
 import mindustry.gen.TileOp;
 import mindustry.io.MapIO;
 import mindustry.maps.Map;
+import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.Tiles;
 import mindustry.world.WorldContext;
@@ -27,12 +29,22 @@ import static mindustry.Vars.*;
 
 public class OMapEditor extends MapEditor {
     public boolean cliffMode = false; 
+    public boolean squareMode = false;
+    public boolean replaceMode = false;
+    public boolean drawTeamsMode = false;
+
+    public double sprayChance = 0.012;
+
     public GridBits cliffMatrix;
     private boolean loading;
 
     public EditorTool currentTool = EditorTool.pencil;
 
     private final Context context = new Context();
+
+    public void setDrawBlock(Block block) {
+        drawBlock = block;
+    }
 
     public void clearCliffMatrix(int width, int height) {
         cliffMatrix = new GridBits(width, height);
@@ -172,45 +184,63 @@ public class OMapEditor extends MapEditor {
         drawBlocks(x, y, false, false, tester);
     }
 
-    public void drawBlocks(int x, int y, boolean square, boolean forceOverlay, Boolf<Tile> tester){
-        if(drawBlock.isMultiblock() && !cliffMode){
+    // these methods are being used by old map editor class that has some annoying listeners
+    // so they do nothing
+    public void drawBlocks(int x, int y, boolean square, boolean forceOverlay, Boolf<Tile> tester){ }
+    public void drawCircle(int x, int y, Cons<Tile> drawer){}
+    public void drawSquare(int x, int y, Cons<Tile> drawer){}
+
+    public void ODrawBlocks(int x, int y){
+        ODrawBlocks(x, y, tile -> true, null);
+    }
+
+    // leave customDrawer null to use default drawers
+    public void ODrawBlocks(int x, int y, Boolf<Tile> tester, Cons<Tile> customDrawer) {
+        if(drawBlock.isMultiblock() && !cliffMode && !drawTeamsMode && customDrawer == null){
             x = Mathf.clamp(x, (drawBlock.size - 1) / 2, width() - drawBlock.size / 2 - 1);
             y = Mathf.clamp(y, (drawBlock.size - 1) / 2, height() - drawBlock.size / 2 - 1);
             if(!hasOverlap(x, y)){
                 tile(x, y).setBlock(drawBlock, drawTeam, rotation);
             }
         }else{
-            boolean isFloor = drawBlock.isFloor() && drawBlock != Blocks.air;
+            Cons<Tile> drawer;
+            if (customDrawer != null) {  // set custom drawer
+                drawer = customDrawer;
+            }
+            else {
+                if (drawTeamsMode) {  // set team changer drawer
+                    drawer = tile -> tile.setTeam(editor.drawTeam);
+                } else {  // set default drawer
+                    drawer = tile -> {
+                        boolean isFloor = drawBlock.isFloor() && drawBlock != Blocks.air;
+                        
+                        if (replaceMode && !(tile.block() != Blocks.air || drawBlock.isFloor())) return;
+                        if (!tester.get(tile)) return;
 
-            Cons<Tile> drawer = tile -> {
-                if(!tester.get(tile)) return;
+                        if(isFloor){
+                            if(!(drawBlock.asFloor().wallOre && !tile.block().solid)){
+                                tile.setFloor(drawBlock.asFloor());
+                            }
+                        }else if(!(tile.block().isMultiblock() && !drawBlock.isMultiblock())){
+                            if(drawBlock.rotate && tile.build != null && tile.build.rotation != rotation){
+                                addTileOp(TileOp.get(tile.x, tile.y, (byte)OpType.rotation.ordinal(), (byte)rotation));
+                            }
 
-                if(isFloor){
-                    if(forceOverlay){
-                        tile.setOverlay(drawBlock.asFloor());
-                    }else{
-                        if(!(drawBlock.asFloor().wallOre && !tile.block().solid)){
-                            tile.setFloor(drawBlock.asFloor());
+                            tile.setBlock(drawBlock, drawTeam, rotation);
                         }
-                    }
-                }else if(!(tile.block().isMultiblock() && !drawBlock.isMultiblock())){
-                    if(drawBlock.rotate && tile.build != null && tile.build.rotation != rotation){
-                        addTileOp(TileOp.get(tile.x, tile.y, (byte)OpType.rotation.ordinal(), (byte)rotation));
-                    }
-
-                    tile.setBlock(drawBlock, drawTeam, rotation);
+                    };
                 }
-            };
+            }
 
-            if(square){
-                drawSquare(x, y, drawer);
+            if(squareMode){
+                ODrawSquare(x, y, drawer);
             }else{
-                drawCircle(x, y, drawer);
+                ODrawCircle(x, y, drawer);
             }
         }
     }
 
-    public void drawCircle(int x, int y, Cons<Tile> drawer){
+    public void ODrawCircle (int x, int y, Cons<Tile> drawer) {
         int clamped = (int)brushSize;
         for(int rx = -clamped; rx <= clamped; rx++){
             for(int ry = -clamped; ry <= clamped; ry++){
@@ -231,7 +261,7 @@ public class OMapEditor extends MapEditor {
         }
     }
 
-    public void drawSquare(int x, int y, Cons<Tile> drawer){
+    public void ODrawSquare (int x, int y, Cons<Tile> drawer) {
         int clamped = (int)brushSize;
         for(int rx = -clamped; rx <= clamped; rx++){
             for(int ry = -clamped; ry <= clamped; ry++){
