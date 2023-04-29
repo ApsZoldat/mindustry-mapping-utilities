@@ -50,7 +50,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
         bannedBlocks = new HiddenContentDialog<Block>("@bannedblocks", ContentType.block, Block::canBeBuilt);
-        revealedBlocks = new HiddenContentDialog<Block>("@rules.revealedblocks", ContentType.block, b -> !b.canBeBuilt());
+        revealedBlocks = new HiddenContentDialog<Block>("@rules.revealedblocks", ContentType.block, b -> !b.isVisible());
         bannedUnits = new HiddenContentDialog<UnitType>("@bannedunits", ContentType.unit, u -> !u.isHidden());
 
         hidden(() -> {
