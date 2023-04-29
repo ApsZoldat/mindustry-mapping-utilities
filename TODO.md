@@ -14,7 +14,6 @@ Possible solution - making a mod menu capable of adding any amount of custom too
 Estimated time of adding - bruh idk
 
 # Soon (TM)
-* **Fill on cliff tools**: Requires to override EditorTool enum
 
 # Not soon but should be made
 * **Unit editing**: Like Testing Utilities unit spawn, but inside the editor *(possible features: precise unit moving)*
