@@ -191,7 +191,7 @@ public enum EditorTool {
             }
         }
     },
-    spray(KeyCode.q){
+    spray(KeyCode.q, "erase"){
         {
             edit = true;
             draggable = true;
@@ -199,7 +199,11 @@ public enum EditorTool {
 
         @Override
         public void touched(int x, int y){
-            mapEditor.ODrawBlocks(x, y, tile -> Mathf.chance(mapEditor.sprayChance), null);
+            if (mode == -1) {
+                mapEditor.ODrawBlocks(x, y, tile -> Mathf.chance(mapEditor.sprayChance), null);
+            } else if (mode == 0) {
+                mapEditor.ODrawBlocks(x, y, tile -> true, tile -> {if (Mathf.chance(mapEditor.sprayChance)) tile.remove();});
+            }
         }
     };
 

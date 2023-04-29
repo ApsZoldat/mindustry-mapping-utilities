@@ -322,7 +322,7 @@ public class OMapView extends MapView {
 
         Lines.stroke(Scl.scl(2f));
 
-        if((!mapEditor.drawBlock.isMultiblock() || mapEditor.cliffMode || mapEditor.drawTeamsMode || tool == EditorTool.eraser) && tool != EditorTool.fill){
+        if((!mapEditor.drawBlock.isMultiblock() || mapEditor.cliffMode || mapEditor.drawTeamsMode || tool == EditorTool.eraser) || (tool == EditorTool.spray && tool.mode == 0) && tool != EditorTool.fill){
             if(tool == EditorTool.line && drawing){
                 Vec2 v1 = unproject(startx, starty).add(x, y);
                 float sx = v1.x, sy = v1.y;
