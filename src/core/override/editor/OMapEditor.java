@@ -9,6 +9,7 @@ import arc.struct.GridBits;
 import arc.struct.Seq;
 import arc.struct.StringMap;
 import arc.util.Log;
+import arc.util.Reflect;
 import core.ModVars;
 import mindustry.Vars;
 import mindustry.content.Blocks;
@@ -24,6 +25,7 @@ import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.Tiles;
 import mindustry.world.WorldContext;
+import mindustry.world.blocks.environment.Floor;
 
 import static mindustry.Vars.*;
 
@@ -218,7 +220,10 @@ public class OMapEditor extends MapEditor {
                         if (!tester.get(tile)) return;
 
                         if(isFloor){
-                            if(!(drawBlock.asFloor().wallOre && !tile.block().solid)){
+                            if (tile.floor().isLiquid && drawBlock.isOverlay()) {  // underliquid drawing
+                                tile.setOverlayQuiet(drawBlock);
+                                renderer.updatePoint(tile.x, tile.y);
+                            } else if(!(drawBlock.asFloor().wallOre && !tile.block().solid)){
                                 tile.setFloor(drawBlock.asFloor());
                             }
                         }else if(!(tile.block().isMultiblock() && !drawBlock.isMultiblock())){
