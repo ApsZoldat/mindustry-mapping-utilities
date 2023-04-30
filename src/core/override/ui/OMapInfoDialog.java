@@ -22,8 +22,7 @@ import static mindustry.Vars.*;
 public class OMapInfoDialog extends MapInfoDialog {
     private final WaveInfoDialog waveInfo;
     private final MapGenerateDialog generate;
-    private final CustomRulesDialog ruleInfo = new CustomRulesDialog();
-    private final OCustomRulesDialog ORuleInfo = new OCustomRulesDialog();
+    private final OCustomRulesDialog ruleInfo = new OCustomRulesDialog();
     private final MapObjectivesDialog objectives = new MapObjectivesDialog();
 
     private boolean preventLandscape = false;
@@ -82,7 +81,7 @@ public class OMapInfoDialog extends MapInfoDialog {
                 var style = Styles.flatt;
 
                 r.button("@editor.rules", Icon.list, style, () -> {
-                    ORuleInfo.show(Vars.state.rules, () -> Vars.state.rules = new Rules());
+                    ruleInfo.show(Vars.state.rules, () -> Vars.state.rules = new Rules());
                     preventLandscape = true;
                     hide();
                 }).marginLeft(10f);

@@ -124,7 +124,15 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         check("@bannedblocks.whitelist", b -> rules.blockWhitelist = b, () -> rules.blockWhitelist);
 
         title("@rules.title.unit");
-        check("@rules.unitammo", b -> rules.unitAmmo = b, () -> rules.unitAmmo);
+
+        try {
+            String ammotext = Core.bundle.get("rules.unitammo"); // use default bundle text but remove the confusing "(may be removed)"
+            if (ammotext.indexOf("[") != -1) ammotext = ammotext.substring(0, ammotext.indexOf("["));
+            check(ammotext, b -> rules.unitAmmo = b, () -> rules.unitAmmo);
+        } catch (Exception Ex) {
+            check("@rules.unitammo", b -> rules.unitAmmo = b, () -> rules.unitAmmo); // just in case someone using minecraft enchanting table language
+        }
+        
         check("@rules.unitcapvariable", b -> rules.unitCapVariable = b, () -> rules.unitCapVariable);
         check("@rules.posessionallowed", b -> rules.possessionAllowed = b, () -> rules.possessionAllowed);
         check("@rules.logicbuild", b -> rules.logicUnitBuild = b, () -> rules.logicUnitBuild);

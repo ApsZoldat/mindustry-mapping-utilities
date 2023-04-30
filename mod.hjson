@@ -30,7 +30,7 @@ description:
     More map making tools will be added in future
     '''
 
-version: 0.15
+version: 0.16
 
 minGameVersion: 142
 
