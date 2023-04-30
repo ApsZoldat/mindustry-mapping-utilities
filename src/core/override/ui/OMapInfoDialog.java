@@ -1,10 +1,8 @@
 package core.override.ui;
 
-import mindustry.editor.MapEditor;
 import mindustry.editor.MapGenerateDialog;
 import mindustry.editor.MapInfoDialog;
 import mindustry.editor.MapObjectivesDialog;
-import mindustry.editor.WaveInfoDialog;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import arc.scene.ui.*;
@@ -15,13 +13,12 @@ import mindustry.game.*;
 import mindustry.gen.*;
 import mindustry.io.*;
 import mindustry.maps.filters.*;
-import mindustry.ui.dialogs.*;
 
 import static mindustry.Vars.*;
 
 public class OMapInfoDialog extends MapInfoDialog {
-    private final WaveInfoDialog waveInfo;
-    private final MapGenerateDialog generate;
+    private final OWaveInfoDialog waveInfo = new OWaveInfoDialog();
+    private final MapGenerateDialog generate = new MapGenerateDialog(false);;
     private final OCustomRulesDialog ruleInfo = new OCustomRulesDialog();
     private final MapObjectivesDialog objectives = new MapObjectivesDialog();
 
@@ -29,8 +26,6 @@ public class OMapInfoDialog extends MapInfoDialog {
 
     public OMapInfoDialog() {
         super();
-        this.waveInfo = new WaveInfoDialog();
-        this.generate = new MapGenerateDialog(false);
 
         shown(() -> {
             ModVars.mapEditorDialog.endLandscape();

@@ -186,14 +186,11 @@ public class OMapEditorDialog extends MapEditorDialog {
             menu.cont.row();
         }
 
-        //wip feature
-        if(experimental){
-            menu.cont.button("@editor.sectorgenerate", Icon.terrain, () -> {
-                menu.hide();
-                sectorGenDialog.show();
-            }).padTop(!steam ? -3 : 1).size(swidth * 2f + 10, 60f);
-            menu.cont.row();
-        }
+        menu.cont.button("@editor.sectorgenerate", Icon.terrain, () -> {
+            menu.hide();
+            sectorGenDialog.show();
+        }).padTop(!steam ? -3 : 1).size(swidth * 2f + 10, 60f);
+        menu.cont.row();
 
         menu.cont.row();
 
