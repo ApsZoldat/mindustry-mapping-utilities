@@ -11,5 +11,5 @@ Small Mindustry mod improving map editor convenience and possibilities
 * **Planet Background**: Allows to edit planet background rendered on map *(yes, it's still just hidden vanilla features)*
 * **Any Brush Size**: You can type any brush size when editing maps
 
-**! Work In Progress !**
+**⚠️ Work In Progress ⚠️**
 More map making tools will be added in future
