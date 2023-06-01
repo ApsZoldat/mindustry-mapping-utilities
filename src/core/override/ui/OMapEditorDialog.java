@@ -58,6 +58,8 @@ public class OMapEditorDialog extends MapEditorDialog {
     private boolean shownWithMap = false;
     private Seq<Block> blocksOut = new Seq<>();
 
+    private Map map;
+
     public OMapEditorDialog(MapEditorDialog oldDialog, OMapEditor newEditor){
         super();
 
@@ -246,6 +248,10 @@ public class OMapEditorDialog extends MapEditorDialog {
             beginLandscape();
             editor.clearOp();
             Core.scene.setScrollFocus(view);
+
+            if (shownWithMap) { // superclass casts map clear
+                editor.beginEdit(map);
+            }
         });
 
         hidden(() -> {
@@ -451,7 +457,8 @@ public class OMapEditorDialog extends MapEditorDialog {
         ui.loadAnd(() -> {
             try{
                 shownWithMap = true;
-                editor.beginEdit(MapIO.createMap(file, true));
+                map = MapIO.createMap(file, true);
+                editor.beginEdit(map);
                 show();
             }catch(Exception e){
                 Log.err(e);
