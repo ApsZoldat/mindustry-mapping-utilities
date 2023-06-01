@@ -50,7 +50,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         backgroundDialog = new PlanetBackgroundDialog();
         loadoutDialog = new LoadoutDialog();
         bannedBlocks = new HiddenContentDialog<Block>("@bannedblocks", ContentType.block, Block::canBeBuilt);
-        revealedBlocks = new HiddenContentDialog<Block>("@rules.revealedblocks", ContentType.block, b -> !b.isVisible());
+        revealedBlocks = new HiddenContentDialog<Block>("@rules.revealedblocks", ContentType.block, b -> true, true);
         bannedUnits = new HiddenContentDialog<UnitType>("@bannedunits", ContentType.unit, u -> !u.isHidden());
 
         hidden(() -> {
@@ -84,14 +84,15 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         title("@rules.title.waves");
         check("@rules.waves", b -> rules.waves = b, () -> rules.waves);
         check("@rules.wavetimer", b -> rules.waveTimer = b, () -> rules.waveTimer);
-        check("@rules.wavesending", b -> rules.waveSending = b, () -> rules.waveSending);
-        check("@rules.waitForWaveToEnd", b -> rules.waitEnemies = b, () -> rules.waitEnemies);
-        check("@rules.showspawns", b -> rules.showSpawns = b, () -> rules.showSpawns);
-        number("@rules.wavespacing", false, f -> rules.waveSpacing = f * 60f, () -> rules.waveSpacing / 60f, () -> rules.waveTimer, 1, Float.MAX_VALUE);
+        check("@rules.wavesending", b -> rules.waveSending = b, () -> rules.waveSending, () -> rules.waves);
+        check("@rules.wavetimer", b -> rules.waveTimer = b, () -> rules.waveTimer, () -> rules.waves);
+        check("@rules.waitForWaveToEnd", b -> rules.waitEnemies = b, () -> rules.waitEnemies, () -> rules.waves && rules.waveTimer);
+        numberi("@rules.wavelimit", f -> rules.winWave = f, () -> rules.winWave, () -> rules.waves, 0, Integer.MAX_VALUE);
+        number("@rules.wavespacing", false, f -> rules.waveSpacing = f * 60f, () -> rules.waveSpacing / 60f, () -> rules.waves && rules.waveTimer, 1, Float.MAX_VALUE);
 
-        number("@rules.initialwavespacing", false, f -> rules.initialWaveSpacing = f * 60f, () -> rules.initialWaveSpacing / 60f, () -> true, 0, Float.MAX_VALUE);
+        number("@rules.initialwavespacing", false, f -> rules.initialWaveSpacing = f * 60f, () -> rules.initialWaveSpacing / 60f, () -> rules.waves && rules.waveTimer, 0, Float.MAX_VALUE);
         
-        number("@rules.dropzoneradius", false, f -> rules.dropZoneRadius = f * tilesize, () -> rules.dropZoneRadius / tilesize, () -> true);
+        number("@rules.dropzoneradius", false, f -> rules.dropZoneRadius = f * tilesize, () -> rules.dropZoneRadius / tilesize, () -> rules.waves);
 
         title("@rules.title.resourcesbuilding");
         check("@rules.infiniteresources", b -> rules.infiniteResources = b, () -> rules.infiniteResources);
@@ -141,6 +142,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         number("@rules.unitcrashdamagemultiplier", f -> rules.unitCrashDamageMultiplier = f, () -> rules.unitCrashDamageMultiplier);
         number("@rules.unitbuildspeedmultiplier", f -> rules.unitBuildSpeedMultiplier = f, () -> rules.unitBuildSpeedMultiplier, 0f, 50f);
         number("@rules.unitcostmultiplier", f -> rules.unitCostMultiplier = f, () -> rules.unitCostMultiplier);
+        number("@rules.unithealthmultiplier", f -> rules.unitHealthMultiplier = f, () -> rules.unitHealthMultiplier);
 
         //main.button("@bannedunits", () -> showBanned("@bannedunits", ContentType.unit, rules.bannedUnits, u -> !u.isHidden())).left().width(300f).row();
         main.button("@bannedunits", () -> bannedUnits.show(rules.bannedUnits)).left().width(300f).row();
@@ -285,6 +287,9 @@ public class OCustomRulesDialog extends CustomRulesDialog {
                 numberi("@rules.rtsmaxsquadsize", f -> teams.rtsMaxSquad = f, () -> teams.rtsMaxSquad, () -> teams.rtsAi, 1, 1000);
                 number("@rules.rtsminattackweight", f -> teams.rtsMinWeight = f, () -> teams.rtsMinWeight, () -> teams.rtsAi);
 
+                check("@rules.buildai", b -> teams.buildAi = b, () -> teams.buildAi, () -> team != rules.defaultTeam && rules.env != Planets.erekir.defaultEnv && !rules.pvp);
+                number("@rules.buildaitier", false, f -> teams.buildAiTier = f, () -> teams.buildAiTier, () -> teams.buildAi && rules.env != Planets.erekir.defaultEnv && !rules.pvp, 0, 1);
+
                 check("@rules.infiniteresources", b -> teams.infiniteResources = b, () -> teams.infiniteResources);
                 number("@rules.buildspeedmultiplier", f -> teams.buildSpeedMultiplier = f, () -> teams.buildSpeedMultiplier, 0.001f, 50f);
 
@@ -292,6 +297,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
                 number("@rules.unitcrashdamagemultiplier", f -> teams.unitCrashDamageMultiplier = f, () -> teams.unitCrashDamageMultiplier);
                 number("@rules.unitbuildspeedmultiplier", f -> teams.unitBuildSpeedMultiplier = f, () -> teams.unitBuildSpeedMultiplier, 0.001f, 50f);
                 number("@rules.unitcostmultiplier", f -> teams.unitCostMultiplier = f, () -> teams.unitCostMultiplier);
+                number("@rules.unithealthmultiplier", f -> teams.unitHealthMultiplier = f, () -> teams.unitHealthMultiplier);
 
                 main = wasMain;
             }, () -> shown[0]).growX().row();
@@ -328,6 +334,7 @@ public class OCustomRulesDialog extends CustomRulesDialog {
             number("@rules.unitcrashdamagemultiplier", f -> teams.unitCrashDamageMultiplier = f, () -> teams.unitCrashDamageMultiplier);
             number("@rules.unitbuildspeedmultiplier", f -> teams.unitBuildSpeedMultiplier = f, () -> teams.unitBuildSpeedMultiplier, 0.001f, 50f);
             number("@rules.unitcostmultiplier", f -> teams.unitCostMultiplier = f, () -> teams.unitCostMultiplier);
+            number("@rules.unithealthmultiplier", f -> teams.unitHealthMultiplier = f, () -> teams.unitHealthMultiplier);
 
 
             main = wasMain;
@@ -354,7 +361,6 @@ public class OCustomRulesDialog extends CustomRulesDialog {
         check("@rules.misc.cangameover", b -> rules.canGameOver = b, () -> rules.canGameOver);
         check("@rules.misc.unitpayupdate", b -> rules.unitPayloadUpdate = b, () -> rules.unitPayloadUpdate);
 
-        numberi("@rules.misc.winwave", b -> rules.winWave = b, () -> rules.winWave, 0, Integer.MAX_VALUE);
         number("@rules.misc.drag", f -> rules.dragMultiplier = f, () -> rules.dragMultiplier);
         main.row();
 

@@ -1,7 +1,6 @@
 package core.override.editor;
 
 import arc.Core;
-import arc.Events;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Lines;
@@ -27,7 +26,6 @@ import mindustry.content.Blocks;
 import core.utils.EditorTool;
 import mindustry.editor.MapEditor;
 import mindustry.editor.MapView;
-import mindustry.game.EventType.Trigger;
 import mindustry.graphics.Pal;
 import mindustry.input.Binding;
 import mindustry.ui.GridImage;
@@ -158,7 +156,7 @@ public class OMapView extends MapView {
                     Bresenham2.line(lastx, lasty, p.x, p.y, (cx, cy) -> tool.touched(cx, cy));
                 }
 
-                if(tool == EditorTool.line && tool.mode == 1){
+                if(tool == EditorTool.line && (tool.mode == 0 || tool.mode == 2)){
                     if(Math.abs(p.x - firstTouch.x) > Math.abs(p.y - firstTouch.y)){
                         lastx = p.x;
                         lasty = firstTouch.y;
@@ -322,14 +320,15 @@ public class OMapView extends MapView {
 
         Lines.stroke(Scl.scl(2f));
 
-        if((!mapEditor.drawBlock.isMultiblock() || mapEditor.cliffMode || mapEditor.drawTeamsMode || tool == EditorTool.eraser) || (tool == EditorTool.spray && tool.mode == 0) && tool != EditorTool.fill){
+        if((!mapEditor.drawBlock.isMultiblock() || mapEditor.cliffMode || mapEditor.drawTeamsMode || tool == EditorTool.eraser
+        || (tool == EditorTool.spray && tool.mode == 0) || (tool == EditorTool.line && (tool.mode == 1 || tool.mode == 2))) && tool != EditorTool.fill){
             if(tool == EditorTool.line && drawing){
                 Vec2 v1 = unproject(startx, starty).add(x, y);
                 float sx = v1.x, sy = v1.y;
                 Vec2 v2 = unproject(lastx, lasty).add(x, y);
 
                 // straight
-                if(tool.mode == 0){
+                if(tool.mode == 0 || tool.mode == 2){
                     if(Math.abs(lastx - startx) > Math.abs(lasty - starty)){
                         v2 = unproject(lastx, starty).add(x, y);
                     } else {
@@ -363,6 +362,15 @@ public class OMapView extends MapView {
                 Point2 p = project(mousex, mousey);
                 Vec2 v = unproject(p.x, p.y).add(x, y);
                 float offset = (mapEditor.drawBlock.size % 2 == 0 ? scaling / 2f : 0f);
+
+                if((tool == EditorTool.line) && (tool.mode == 0 || tool.mode == 2) && drawing) {
+                    if(Math.abs(lastx - startx) > Math.abs(lasty - starty)){
+                        v = unproject(lastx, starty).add(x, y);
+                    } else {
+                        v = unproject(startx, lasty).add(x, y);
+                    }
+                }
+
                 Lines.square(
                 v.x + scaling / 2f + offset,
                 v.y + scaling / 2f + offset,

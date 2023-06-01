@@ -58,8 +58,6 @@ public class OMapEditorDialog extends MapEditorDialog {
     private boolean shownWithMap = false;
     private Seq<Block> blocksOut = new Seq<>();
 
-    private Map map;
-
     public OMapEditorDialog(MapEditorDialog oldDialog, OMapEditor newEditor){
         super();
 
@@ -243,15 +241,11 @@ public class OMapEditorDialog extends MapEditorDialog {
         });
 
         shown(() -> {
-            oldDialog.hide(); // old editor will show every time this one triggers
+            //oldDialog.hide(); // old editor will show every time this one triggers
 
             beginLandscape();
             editor.clearOp();
             Core.scene.setScrollFocus(view);
-
-            if (shownWithMap) { // superclass casts map clear
-                editor.beginEdit(map);
-            }
         });
 
         hidden(() -> {
@@ -294,12 +288,6 @@ public class OMapEditorDialog extends MapEditorDialog {
             world.endMapLoad();
             player.set(world.width() * tilesize/2f, world.height() * tilesize/2f);
             player.clearUnit();
-
-            for(var unit : Groups.unit){
-                if(unit.spawnedByCore){
-                    unit.remove();
-                }
-            }
 
             Groups.build.clear();
             Groups.weather.clear();
@@ -450,11 +438,6 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     @Override
-    public Dialog show(){
-        return super.show();
-    }
-
-    @Override
     public void hide(){
         super.hide();
     }
@@ -468,8 +451,7 @@ public class OMapEditorDialog extends MapEditorDialog {
         ui.loadAnd(() -> {
             try{
                 shownWithMap = true;
-                map = MapIO.createMap(file, true);
-                editor.beginEdit(map);
+                editor.beginEdit(MapIO.createMap(file, true));
                 show();
             }catch(Exception e){
                 Log.err(e);
@@ -676,9 +658,9 @@ public class OMapEditorDialog extends MapEditorDialog {
                 t.left();
                 t.add("@editor.brushsize").left();
                 sizeFieldTable.field(Float.toString(editor.brushSize), s -> brushSizeChanger.get(Strings.parseFloat(s)))
-                    .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(50f).left();
+                    .valid(f -> (Strings.parseFloat(f) >= 0f && Strings.parseFloat(f) <= 1024f)).maxTextLength(7).width(80f).left();
                 t.add(sizeFieldTable);
-            }).padTop(4f).marginLeft(18f).padBottom(-7f).row();
+            }).padTop(4f).marginLeft(7f).padBottom(-7f).row();
 
             mid.row();
 
@@ -726,8 +708,8 @@ public class OMapEditorDialog extends MapEditorDialog {
                 t.add("@editor.editteam").left().update(a -> a.setColor(editor.drawTeam.color));
                 t.field(Integer.toString(editor.drawTeam.id), s -> teamChanger.get(Strings.parseInt(s)))
                     .padRight(100f).update(a -> {if (a.getText() != "") a.setText(Integer.toString(editor.drawTeam.id));})
-                    .valid(f -> (Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255)).maxTextLength(3).width(50f).left();
-            }).padTop(-8).padBottom(4f).marginLeft(7f).row();
+                    .valid(f -> (Strings.parseInt(f) >= 0 && Strings.parseInt(f) <= 255)).maxTextLength(3).width(80f).left();
+            }).padTop(-8).padBottom(4f).marginLeft(7f).left().row();
 
             teams.row();
 
@@ -940,7 +922,7 @@ public class OMapEditorDialog extends MapEditorDialog {
             button.clicked(() -> editor.drawBlock = block);
             button.resizeImage(8 * 4f);
             button.update(() -> button.setChecked(editor.drawBlock == block));
-            blockSelection.add(button).size(50f).tooltip(block.localizedName);
+            blockSelection.add(button).size(50f).tooltip(block.localizedName + "\n[gray]" + block.name);
 
             if(i == 0) editor.drawBlock = block;
 

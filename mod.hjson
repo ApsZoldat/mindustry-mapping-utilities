@@ -32,7 +32,7 @@ description:
 
 version: 0.16
 
-minGameVersion: 142
+minGameVersion: 144.2
 
 java: true
 

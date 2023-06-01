@@ -8,8 +8,6 @@ import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Table;
 import arc.struct.ObjectSet;
 import arc.struct.Seq;
-import arc.util.Log;
-import mindustry.content.Blocks;
 import mindustry.ctype.ContentType;
 import mindustry.ctype.UnlockableContent;
 import mindustry.gen.Icon;
@@ -18,6 +16,7 @@ import mindustry.type.Category;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 import mindustry.world.Block;
+import mindustry.world.meta.BuildVisibility;
 
 import static mindustry.Vars.*;
 
@@ -33,17 +32,14 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
 
     private String searchText = "";
     private Category selectedCategory = null;
+    private boolean terrainCategory = false;  // whether terrain blocks category is selected
 
-    public HiddenContentDialog(String title, ContentType type, Boolf<T> pred) {
+    public HiddenContentDialog(String title, ContentType type, Boolf<T> pred, boolean isRevealedBlocks) {
         super(title);
 
         this.type = type;
         this.pred = pred;
-
-        if (type == ContentType.block) {
-            // 400 iq gigachad move
-            if (((Boolf<Block>)pred).get(Blocks.cliff)) isRevealedBlocks = true;
-        }
+        this.isRevealedBlocks = isRevealedBlocks;
 
         addDialog = new BaseDialog("@add");
         addDialog.addCloseButton();
@@ -64,6 +60,10 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
         shown(this::rebuild);
     }
 
+    public HiddenContentDialog(String title, ContentType type, Boolf<T> pred) {
+        this(title, type, pred, false);
+    }
+
     // Use only this show() method
     public void show(ObjectSet<T> set) {
         this.set = set;
@@ -76,7 +76,7 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
             search.image(Icon.zoom).padRight(8);
             search.field(searchText, this::rebuildPane).maxTextLength(maxNameLength).get().setMessageText("@players.search");
         }).pad(-2).row();
-        if (type == ContentType.block && !isRevealedBlocks) {
+        if (type == ContentType.block) {
             cont.table(t -> {
                 t.marginTop(8f);
                 t.defaults().marginRight(4f);
@@ -87,8 +87,20 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
                         } else {
                             selectedCategory = category;
                         }
+                        terrainCategory = false;
                         rebuildPane(searchText);
-                    }).update(i -> i.setChecked(selectedCategory == category)).padRight(6f);
+                    }).update(i -> i.setChecked(selectedCategory == category)).padRight(12f);
+                }
+                if (isRevealedBlocks) {
+                    t.button(ui.getIcon("terrain"), Styles.emptyTogglei, () -> {
+                        if (terrainCategory) {
+                            terrainCategory = false;
+                        } else {
+                            terrainCategory = true;
+                        }
+                            selectedCategory = null;
+                        rebuildPane(searchText);
+                    }).update(i -> i.setChecked(terrainCategory)).padLeft(40f).padRight(6f);
                 }
             });
             cont.row();
@@ -123,8 +135,9 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
             int i = 0;
 
             for(T con : array){
-                if (selectedCategory != null && type == ContentType.block) {
-                    if (((Block)con).category != selectedCategory) continue;
+                if (type == ContentType.block) {
+                    if (terrainCategory && ((Block)con).buildVisibility != BuildVisibility.hidden) continue;
+                    if (selectedCategory != null && (((Block)con).category != selectedCategory || ((Block)con).buildVisibility == BuildVisibility.hidden)) continue;
                 }
 
                 if (search.isEmpty() || con.localizedName.toLowerCase().contains(search.toLowerCase())) {
@@ -136,7 +149,7 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
                         b.button(Icon.cancel, Styles.clearNonei, () -> {
                             set.remove(con);
                             rebuild();
-                        }).size(70f).pad(-4f).padLeft(0f);
+                        }).size(70f).pad(-4f);
                     }).size(300f, 70f).padRight(5);
     
                     if(++i % cols == 0){
@@ -153,7 +166,7 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
             search.image(Icon.zoom).padRight(8);
             search.field(searchText, this::rebuildAddDialogPane).maxTextLength(maxNameLength).get().setMessageText("@players.search");
         }).pad(-2).row();
-        if (type == ContentType.block && !isRevealedBlocks) {
+        if (type == ContentType.block) {
             addDialog.cont.table(t -> {
                 t.marginTop(8f);
                 t.defaults().marginRight(4f);
@@ -164,8 +177,20 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
                         } else {
                             selectedCategory = category;
                         }
+                        terrainCategory = false;
                         rebuildAddDialogPane(searchText);
-                    }).update(i -> i.setChecked(selectedCategory == category)).padRight(6f);
+                    }).update(i -> i.setChecked(selectedCategory == category)).padRight(12f);
+                }
+                if (isRevealedBlocks) {
+                    t.button(ui.getIcon("terrain"), Styles.emptyTogglei, () -> {
+                        if (terrainCategory) {
+                            terrainCategory = false;
+                        } else {
+                            terrainCategory = true;
+                        }
+                            selectedCategory = null;
+                        rebuildAddDialogPane(searchText);
+                    }).update(i -> i.setChecked(terrainCategory)).padLeft(40f).padRight(6f);
                 }
             });
             addDialog.cont.row();
@@ -187,7 +212,8 @@ public class HiddenContentDialog <T extends UnlockableContent> extends BaseDialo
                 b -> {
                 int cols = mobile && Core.graphics.isPortrait() ? 4 : 12;
                 if (type == ContentType.block) {
-                    if (selectedCategory != null && ((Block)b).category != selectedCategory) return;
+                    if (terrainCategory && ((Block)b).buildVisibility != BuildVisibility.hidden) return;
+                    if (selectedCategory != null && (((Block)b).category != selectedCategory || ((Block)b).buildVisibility == BuildVisibility.hidden)) return;
                 }
                 t.button(new TextureRegionDrawable(b.uiIcon), Styles.flati, iconMed, () -> {
                     set.add(b);

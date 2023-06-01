@@ -23,12 +23,12 @@ public enum EditorTool {
             mapEditor.setDrawBlock(tile.block() == Blocks.air || !tile.block().inEditor ? tile.overlay() == Blocks.air ? tile.floor() : tile.overlay() : tile.block());
         }
     },
-    line(KeyCode.l, "orthogonal"){
+    line(KeyCode.l, "orthogonal", "erase", "eraseorthogonal"){
 
         @Override
         public void touchedLine(int x1, int y1, int x2, int y2){
             //straight
-            if(mode == 0){
+            if(mode == 0 || mode == 2){
                 if(Math.abs(x2 - x1) > Math.abs(y2 - y1)){
                     y2 = y1;
                 }else{
@@ -37,7 +37,11 @@ public enum EditorTool {
             }
 
             Bresenham2.line(x1, y1, x2, y2, (x, y) -> {
-                mapEditor.ODrawBlocks(x, y);
+                if (mode == 1 || mode == 2) {
+                    mapEditor.ODrawBlocks(x, y, tile -> true, tile -> tile.remove());
+                } else {
+                    mapEditor.ODrawBlocks(x, y);
+                }
             });
         }
     },

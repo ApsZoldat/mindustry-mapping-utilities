@@ -120,7 +120,7 @@ public class OMapEditor extends MapEditor {
 
     @Override
     public void beginEdit(int width, int height){
-        if (ModVars.inGame) return;
+        //if (ModVars.inGame) return;
         reset();
 
         loading = true;
@@ -132,7 +132,7 @@ public class OMapEditor extends MapEditor {
 
     @Override
     public void beginEdit(Map map){
-        if (ModVars.inGame) return;
+        //if (ModVars.inGame) return;
         reset();
 
         loading = true;
