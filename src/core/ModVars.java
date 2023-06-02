@@ -9,5 +9,4 @@ public class ModVars {
     public static OMapEditor mapEditor;
     public static OMapEditorDialog mapEditorDialog;
     public static MapView oldMapView;
-    public static boolean inGame = false;
 }

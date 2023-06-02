@@ -111,7 +111,7 @@ public class OMapEditorDialog extends MapEditorDialog {
                         if(MapIO.isImage(file)){
                             ui.showInfo("@editor.errorimage");
                         }else{
-                            editor.beginEdit(MapIO.createMap(file, true));
+                            mapEditor.OBeginEdit(MapIO.createMap(file, true));
                         }
                     });
                 })),
@@ -121,7 +121,7 @@ public class OMapEditorDialog extends MapEditorDialog {
                 ui.loadAnd(() -> {
                     try{
                         Pixmap pixmap = new Pixmap(file);
-                        editor.beginEdit(pixmap);
+                        mapEditor.OBeginEdit(pixmap);
                         pixmap.dispose();
                     }catch(Exception e){
                         ui.showException("@editor.errorload", e);
@@ -220,7 +220,7 @@ public class OMapEditorDialog extends MapEditorDialog {
 
         loadDialog = new MapLoadDialog(map -> ui.loadAnd(() -> {
             try{
-                editor.beginEdit(map);
+                mapEditor.OBeginEdit(map);
             }catch(Exception e){
                 ui.showException("@editor.errorload", e);
                 Log.err(e);
@@ -243,14 +243,17 @@ public class OMapEditorDialog extends MapEditorDialog {
         });
 
         shown(() -> {
-            //oldDialog.hide(); // old editor will show every time this one triggers
+            oldDialog.hide(); // old editor will show every time this one triggers
 
             beginLandscape();
             editor.clearOp();
             Core.scene.setScrollFocus(view);
 
-            if (shownWithMap) { // superclass casts map clear
-                editor.beginEdit(map);
+            if (!shownWithMap) {
+                //clear units, rules and other unnecessary stuff
+                logic.reset();
+                state.rules = new Rules();
+                mapEditor.OBeginEdit(200, 200);
             }
         });
 
@@ -273,8 +276,6 @@ public class OMapEditorDialog extends MapEditorDialog {
     }
 
     private void editInGame(){
-        ModVars.inGame = true;
-
         menu.hide();
         ui.loadAnd(() -> {
             lastSavedRules = state.rules;
@@ -322,7 +323,6 @@ public class OMapEditorDialog extends MapEditorDialog {
         lastSavedRules = null;
         saved = false;
         editor.renderer.updateAll();
-        ModVars.inGame = false;
     }
 
 
@@ -458,7 +458,7 @@ public class OMapEditorDialog extends MapEditorDialog {
             try{
                 shownWithMap = true;
                 map = MapIO.createMap(file, true);
-                editor.beginEdit(map);
+                mapEditor.OBeginEdit(map);
                 show();
             }catch(Exception e){
                 Log.err(e);

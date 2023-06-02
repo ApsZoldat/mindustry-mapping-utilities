@@ -9,9 +9,7 @@ import arc.struct.GridBits;
 import arc.struct.Seq;
 import arc.struct.StringMap;
 import arc.util.Log;
-import arc.util.Reflect;
 import core.ModVars;
-import mindustry.Vars;
 import mindustry.content.Blocks;
 import mindustry.editor.EditorTile;
 import core.utils.EditorTool;
@@ -25,7 +23,6 @@ import mindustry.world.Block;
 import mindustry.world.Tile;
 import mindustry.world.Tiles;
 import mindustry.world.WorldContext;
-import mindustry.world.blocks.environment.Floor;
 
 import static mindustry.Vars.*;
 
@@ -118,9 +115,18 @@ public class OMapEditor extends MapEditor {
         clearCliffMatrix(width(), height());
     }
 
+    // these methods are being used by old map editor dialog class that has some annoying listeners
+    // so they do nothing
     @Override
-    public void beginEdit(int width, int height){
-        //if (ModVars.inGame) return;
+    public void beginEdit(int width, int height) {return;}
+
+    @Override
+    public void beginEdit(Map map) {return;}
+
+    @Override
+    public void beginEdit(Pixmap pixmap) {return;}
+
+    public void OBeginEdit(int width, int height){
         reset();
 
         loading = true;
@@ -130,9 +136,7 @@ public class OMapEditor extends MapEditor {
         loading = false;
     }
 
-    @Override
-    public void beginEdit(Map map){
-        //if (ModVars.inGame) return;
+    public void OBeginEdit(Map map){
         reset();
 
         loading = true;
@@ -146,9 +150,7 @@ public class OMapEditor extends MapEditor {
         loading = false;
     }
 
-    @Override
-    public void beginEdit(Pixmap pixmap){
-        if (ModVars.inGame) return;
+    public void OBeginEdit(Pixmap pixmap){
         reset();
 
         createTiles(pixmap.width, pixmap.height);
