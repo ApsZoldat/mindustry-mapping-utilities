@@ -37,33 +37,32 @@ import core.utils.PlanetBackgroundDrawer;
 
 public class PlanetBackgroundDialog extends BaseDialog {
     private Table main;
-    private Table planetTable;
     private Table paramsTable;
     private PlanetParams params;
 
     private boolean inputMode = false;
-    private boolean tableRow = Core.graphics.getWidth() < 680; // When planet selection and params tables should be splitted with row()
 
     private Cell<TextButton> UIButton;
+    private Cell<Label> desc;
     private boolean UIHidden = false;
 
     private float rotX = 0f;
     private float rotY = 0f;
     
     public PlanetBackgroundDialog() {
-        super("", new DialogStyle(){{
+        super("@rules.planetbackground", new DialogStyle(){{
             stageBackground = Styles.none;
             titleFont = Fonts.def;
             titleFontColor = Pal.accent;
             // Don't specify background so it won't dark the planet view
         }});
 
-        Events.run(Trigger.update, () -> {
-            resetup();
-        });
-
         addCloseButton();
         UIButton = buttons.button("@rules.background.hideui", Icon.eyeOff, this::switchUI).size(210f, 64f);
+        buttons.button("@rules.background.selectplanet", Icon.planet, this::planetDialog).size(210f, 64f);
+
+        titleTable.row();
+        desc = titleTable.add("@rules.background.description").color(new Color(1f, 1f, 1f, 1f)).padBottom(20f);
         shown(this::setup);
     }
 
@@ -99,32 +98,35 @@ public class PlanetBackgroundDialog extends BaseDialog {
         }
     }
 
-    // Resetups the dialog when window rescaled
-    private void resetup() {
-        boolean newTableRow = Core.graphics.getWidth() < 680;
-        
-        if (tableRow != newTableRow) {
-            tableRow = newTableRow;
-            setup();
-        }
-    }
-
-    private void addPlanet(Planet planet) {
-        planetTable.button(planet.localizedName, Icon.planet, Styles.togglet, () -> {
+    private void addPlanetButton(Planet planet, Table tb, BaseDialog dialog) {
+        tb.button(planet.localizedName, Icon.planet, Styles.togglet, () -> {
             params.planet = planet;
             PlanetBackgroundDrawer.update();
+            dialog.hide();
         }).marginLeft(14f).padBottom(5f).width(220f).height(55f).checked(params.planet == planet).update(b -> b.setChecked(params.planet == planet))
         .get().getChildren().get(1).setColor(planet.iconColor);
-        planetTable.row();
     }
 
-    private void addPlanets() {
-        addPlanet(Planets.sun);
-        addPlanet(Planets.serpulo);
-        addPlanet(Planets.erekir);
-        addPlanet(Planets.gier);
-        addPlanet(Planets.notva);
-        addPlanet(Planets.verilus);
+    private void planetDialog() {
+        if (params != null) {
+            BaseDialog dialog = new BaseDialog("@rules.background.selectplanet");
+
+            dialog.cont.pane(p -> {
+                p.table(t -> {
+                    int i = 0;
+                    for (Planet planet : content.planets()) {
+                        addPlanetButton(planet, t, dialog);
+                        i += 1;
+                        if (i % 3 == 0) {
+                            t.row();
+                        }
+                    }
+                });
+            });
+    
+            dialog.addCloseButton();
+            dialog.show();
+        };
     }
 
     private void setupSliders() {
@@ -165,26 +167,23 @@ public class PlanetBackgroundDialog extends BaseDialog {
     private void setup() {
         params = state.rules.planetBackground;
 
+        // TODO: This doesn't work
         if (params != null) {
             rotX = new Vec2(params.camPos.x, params.camPos.z).angle();
             rotY = new Vec2(0, params.camPos.y).angle();
         }
 
+        desc.visible(!UIHidden);
+
         cont.clear();
-        cont.pane(m -> main = m);
+        cont.table(t -> main = t);
 
         if (!UIHidden && params != null) {
             main.button("@rules.background.removebackground", () -> {ui.showConfirm("@rules.background.removalwarning", this::removeBackground);})
             .marginLeft(14f).padBottom(5f).width(220f).height(55f).row();
-            main.add("@rules.background.description").color(new Color(1f, 1f, 1f, 1f)).padBottom(20f);
             main.row();
 
             main.table(t -> {
-                t.table(t2 -> planetTable = t2).padRight(20f);
-                addPlanets();
-        
-                if (tableRow) t.row();
-        
                 t.table(t2 -> paramsTable = t2);
         
                 if (!inputMode) setupSliders();
@@ -197,7 +196,6 @@ public class PlanetBackgroundDialog extends BaseDialog {
                 inputMode = !inputMode;
                 setup();
             }).marginLeft(14f).padBottom(5f).width(220f).height(55f);
-            planetTable.row();
         } else if (params == null) {
             main.add("@rules.background.nobackground").color(new Color(1f, 1f, 1f, 1f)).padBottom(20f).row();
             main.button("@rules.background.addbackground", Styles.togglet, () -> {
